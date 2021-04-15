@@ -8,31 +8,57 @@
 
 // #region methods
 describe('Client', () => {
-    it('works', async () => {
-        const client = new Client({
-            url: 'http://localhost:7766',
-            token: '__TESTS__',
-        });
+    const client = new Client({
+        url: 'http://localhost:7766',
+        token: '__TESTS__',
+    });
 
-        const objectID = 'some-object';
+    const objectID = 'some-object';
 
+    const objectSource = `
+    class SomeObject {
+        internal = 12;
+
+        read() {
+            return this.internal;
+        }
+    }
+    `;
+
+
+    xit('simple test', async () => {
         const registered = await client.register(
             objectID,
-            `
-                class SomeObject {
-                    internal = 12;
-
-                    read() {
-                        return this.internal;
-                    }
-                }
-            `,
+            objectSource,
         );
         expect(registered).toBeTruthy();
 
         const someObject = await client.request(objectID);
 
         expect(someObject.read()).toEqual(12);
+    });
+
+
+    it('vm test', async () => {
+        const registered = await client.register(
+            objectID,
+            objectSource,
+        );
+        expect(registered).toBeTruthy();
+
+        const someObject = await client.request(
+            objectID,
+            {
+                useVM: true,
+                vmInstantiation: `
+                    const someObject = new SomeObject();
+
+                    someObject.read();
+                `,
+            },
+        );
+
+        expect(someObject).toEqual(12);
     });
 });
 // #endregion methods

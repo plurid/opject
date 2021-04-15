@@ -68,11 +68,11 @@ class Client {
                 ? data.object + vmInstantiation
                 : data.object;
 
-            vm.createContext(vmContext || {});
+            const vmContextObject = vm.createContext(vmContext || {});
 
             const compute = vm.runInContext(
                 vmSource,
-                vmContext,
+                vmContextObject,
             );
 
             return compute;
