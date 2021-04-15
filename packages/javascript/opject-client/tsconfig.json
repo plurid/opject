@@ -13,6 +13,9 @@
             ],
             "~objects/*": [
                 "./source/objects/*"
+            ],
+            "~utilities/*": [
+                "./source/utilities/*"
             ]
         },
 
