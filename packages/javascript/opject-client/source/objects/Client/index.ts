@@ -39,6 +39,7 @@ class Client {
         options?: OpjectRequestOptions,
     ) {
         const {
+            useVM,
             vmContext,
             vmInstantiation,
             serealState,
@@ -62,14 +63,15 @@ class Client {
 
         // check object source code
 
-        if (
-            vmContext
-            && vmInstantiation
-        ) {
-            vm.createContext(vmContext);
+        if (useVM) {
+            const vmSource = vmInstantiation
+                ? data.object + vmInstantiation
+                : data.object;
+
+            vm.createContext(vmContext || {});
 
             const compute = vm.runInContext(
-                data.object + vmInstantiation,
+                vmSource,
                 vmContext,
             );
 

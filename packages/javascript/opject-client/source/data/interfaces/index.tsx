@@ -10,6 +10,7 @@ export type OpjectClientRequiredOptions = Required<OpjectClientOptions>;
 
 
 export interface OpjectRequestOptions {
+    useVM: boolean;
     vmContext: any;
     vmInstantiation: string;
     serealState: any;
