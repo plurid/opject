@@ -39,7 +39,7 @@ describe('Client', () => {
     });
 
 
-    it('vm test', async () => {
+    xit('vm test', async () => {
         const registered = await client.register(
             objectID,
             objectSource,
