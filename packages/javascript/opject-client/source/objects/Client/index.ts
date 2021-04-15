@@ -59,13 +59,37 @@ class Client {
         return opject;
     }
 
+    public async register(
+        objectID: string,
+        objectData: string,
+    ) {
+        const response = await fetch(
+            this.requireURL,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    object: objectID,
+                    data: objectData,
+                }),
+            },
+        );
+
+        const data = await response.json();
+
+        return data.registered;
+    }
+
 
     private handleOptions (
         options: OpjectClientOptions,
     ): OpjectClientRequiredOptions {
         return {
             url: options.url,
-            requireRoute: options.url || '/require',
+            requireRoute: options.requireRoute || '/require',
+            registerRoute: options.registerRoute || '/register',
         };
     }
 }
