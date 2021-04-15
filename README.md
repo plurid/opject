@@ -30,6 +30,24 @@
 
 ## About
 
+`opject` is a specification and implementation for passing objects through the network.
+
+An `object` is a self-contained piece of code.
+
+The passing of the object through the network is obtained in 2 steps:
+
++ a registered object is requested by the `opject client` from the `opject server`;
++ the `opject client` instantiates or runs in a virtual machine the received object.
+
+`opject` has clients for
+
++ `NodeJS`
++ `Python`
+
+The `opject server` can serve any kind of object. However, depending on the preferred language, a specific `opject server` can be used for
+
++ `NodeJS`
++ `Python`
 
 
 
