@@ -23,6 +23,7 @@ class Client {
     private options: OpjectClientRequiredOptions;
     private requireURL: string;
     private registerURL: string;
+    private checkURL: string;
 
 
     constructor(
@@ -31,6 +32,7 @@ class Client {
         this.options = this.handleOptions(options);
         this.requireURL = this.options.url + this.options.requireRoute;
         this.registerURL = this.options.url + this.options.registerRoute;
+        this.checkURL = this.options.url + this.options.checkRoute;
     }
 
 
@@ -61,7 +63,25 @@ class Client {
 
         const data = await response.json();
 
-        // check object source code
+        // const sourceSha = computeSourceSha(data.object);
+        // const checkResponse = await fetch(
+        //     this.checkURL,
+        //     {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Authorization': `Bearer ${this.options.token}`,
+        //         },
+        //         body: JSON.stringify({
+        //             id: objectID,
+        //             sha: sourceSha,
+        //         }),
+        //     },
+        // );
+        // const checkData = await response.json();
+        // if (!checkData.checked) {
+        //     return;
+        // }
 
         if (useVM) {
             const vmSource = vmInstantiation
@@ -121,6 +141,7 @@ class Client {
             token,
             requireRoute,
             registerRoute,
+            checkRoute,
         } = options;
 
         return {
@@ -128,6 +149,7 @@ class Client {
             token,
             requireRoute: requireRoute || '/require',
             registerRoute: registerRoute || '/register',
+            checkRoute: checkRoute || '/check',
         };
     }
 }

@@ -4,6 +4,7 @@ export interface OpjectClientOptions {
     token: string;
     requireRoute?: string;
     registerRoute?: string;
+    checkRoute?: string;
 }
 
 export type OpjectClientRequiredOptions = Required<OpjectClientOptions>;
