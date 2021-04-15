@@ -1,13 +1,17 @@
 // #region imports
-    // #region imports
+    // #region libraries
+    import vm from 'vm';
+
     import fetch from 'cross-fetch';
-    // #endregion imports
+    // #endregion libraries
 
 
     // #region imports
     import {
         OpjectClientOptions,
         OpjectClientRequiredOptions,
+
+        OpjectRequestOptions,
     } from '~data/interfaces';
     // #endregion imports
 // #endregion imports
@@ -32,8 +36,14 @@ class Client {
 
     public async request(
         objectID: string,
-        serealState?: any,
+        options?: OpjectRequestOptions,
     ) {
+        const {
+            vmContext,
+            vmInstantiation,
+            serealState,
+        } = options || {};
+
         const response = await fetch(
             this.requireURL,
             {
@@ -52,8 +62,20 @@ class Client {
 
         // check object source code
 
-        // HACK to use the vm instead of eval (?)
-        // https://stackoverflow.com/a/39299283/6639124
+        if (
+            vmContext
+            && vmInstantiation
+        ) {
+            vm.createContext(vmContext);
+
+            const compute = vm.runInContext(
+                data.object + vmInstantiation,
+                vmContext,
+            );
+
+            return compute;
+        }
+
         const Opject = eval('(' + data.object + ')');
         const opject = new Opject();
 

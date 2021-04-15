@@ -7,4 +7,11 @@ export interface OpjectClientOptions {
 }
 
 export type OpjectClientRequiredOptions = Required<OpjectClientOptions>;
+
+
+export interface OpjectRequestOptions {
+    vmContext: any;
+    vmInstantiation: string;
+    serealState: any;
+}
 // #endregion module
