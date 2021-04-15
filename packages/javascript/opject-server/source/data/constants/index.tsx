@@ -1,3 +1,11 @@
+// #region imports
+    // #region libraries
+    import path from 'path';
+    // #endregion libraries
+// #endregion imports
+
+
+
 // #region module
 export const DEFAULT_SERVER_PORT = process.env.PORT
     ? parseInt(process.env.PORT)
@@ -22,4 +30,9 @@ export const environment = {
     production: process.env.ENV_MODE === 'production',
     development: process.env.ENV_MODE === 'development',
 };
+
+
+
+export const BASE_PATH = process.env.OPJECT_SERVER_BASE_PATH || path.join(process.cwd(), '/data');
+export const OBJECTS_PATH = process.env.OPJECT_SERVER_OBJECTS_PATH || path.join(BASE_PATH, '/objects');
 // #endregion module

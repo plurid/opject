@@ -39,6 +39,8 @@
 
         ENDPOINT_REQUIRE,
         ENDPOINT_REGISTER,
+
+        OBJECTS_PATH,
     } from '../../data/constants';
 
     import {
@@ -685,8 +687,8 @@ class OpjectServer {
 
         return await fs.readFile(
             path.join(
-                process.cwd(),
-                `/objects/${id}`,
+                OBJECTS_PATH,
+                id,
             ),
             'utf-8',
         );
@@ -705,8 +707,8 @@ class OpjectServer {
 
         await fs.writeFile(
             path.join(
-                process.cwd(),
-                `/objects/${id}`,
+                OBJECTS_PATH,
+                id,
             ),
             data,
         );
