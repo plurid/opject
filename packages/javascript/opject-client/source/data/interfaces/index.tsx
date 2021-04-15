@@ -1,6 +1,7 @@
 // #region module
 export interface OpjectClientOptions {
     url: string;
+    token: string;
     requireRoute?: string;
     registerRoute?: string;
 }

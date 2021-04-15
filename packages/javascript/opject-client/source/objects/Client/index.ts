@@ -18,6 +18,7 @@
 class Client {
     private options: OpjectClientRequiredOptions;
     private requireURL: string;
+    private registerURL: string;
 
 
     constructor(
@@ -25,6 +26,7 @@ class Client {
     ) {
         this.options = this.handleOptions(options);
         this.requireURL = this.options.url + this.options.requireRoute;
+        this.registerURL = this.options.url + this.options.registerRoute;
     }
 
 
@@ -37,7 +39,8 @@ class Client {
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.options.token}`,
                 },
                 body: JSON.stringify({
                     id: objectID,
@@ -49,8 +52,10 @@ class Client {
 
         // check object source code
 
-        const Opject = data.object;
-        const opject = new Opject;
+        // HACK to use the vm instead of eval (?)
+        // https://stackoverflow.com/a/39299283/6639124
+        const Opject = eval('(' + data.object + ')');
+        const opject = new Opject();
 
         if (serealState) {
             opject.loadSereal(serealState);
@@ -64,11 +69,12 @@ class Client {
         objectData: string,
     ) {
         const response = await fetch(
-            this.requireURL,
+            this.registerURL,
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.options.token}`,
                 },
                 body: JSON.stringify({
                     object: objectID,
@@ -86,10 +92,18 @@ class Client {
     private handleOptions (
         options: OpjectClientOptions,
     ): OpjectClientRequiredOptions {
+        const {
+            url,
+            token,
+            requireRoute,
+            registerRoute,
+        } = options;
+
         return {
-            url: options.url,
-            requireRoute: options.requireRoute || '/require',
-            registerRoute: options.registerRoute || '/register',
+            url,
+            token,
+            requireRoute: requireRoute || '/require',
+            registerRoute: registerRoute || '/register',
         };
     }
 }

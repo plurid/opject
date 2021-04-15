@@ -10,7 +10,8 @@
 describe('Client', () => {
     it('works', async () => {
         const client = new Client({
-            url: 'localhost:7766',
+            url: 'http://localhost:7766',
+            token: '__TESTS__',
         });
 
         const objectID = 'some-object';
