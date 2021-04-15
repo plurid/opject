@@ -39,14 +39,16 @@
 
         ENDPOINT_REQUIRE,
         ENDPOINT_REGISTER,
+        ENDPOINT_CHECK,
 
         OBJECTS_PATH,
-    } from '../../data/constants';
+    } from '~data/constants';
 
     import {
         ServerRequest,
         ServerRequestObjectBody,
         ServerRequestRegisterBody,
+        ServerRequestCheckBody,
 
         DebugLevels,
 
@@ -57,7 +59,11 @@
         VerifyToken,
         GetObject,
         RegisterObject,
-    } from '../../data/interfaces';
+    } from '~data/interfaces';
+
+    import {
+        computeSourceSha,
+    } from '~utilities/sha';
     // #endregion external
 // #endregion imports
 
@@ -183,6 +189,10 @@ class OpjectServer {
 
         this.serverApplication.post(ENDPOINT_REGISTER, (request, response) => {
             this.handleEndpointRegister(request, response);
+        });
+
+        this.serverApplication.post(ENDPOINT_CHECK, (request, response) => {
+            this.handleEndpointCheck(request, response);
         });
     }
 
@@ -447,6 +457,168 @@ class OpjectServer {
 
             const responseData = {
                 registered,
+            };
+
+
+            if (
+                contentType !== DEON_MEDIA_TYPE
+            ) {
+                if (this.debugAllows('info')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.info(
+                        `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response.json(responseData);
+                return;
+            }
+
+
+            const deon = new Deon();
+            const responseDeon = deon.stringify(responseData);
+
+            response.setHeader(
+                'Content-Type',
+                DEON_MEDIA_TYPE,
+            );
+
+            if (this.debugAllows('info')) {
+                const requestTime = this.computeRequestTime(request);
+
+                console.info(
+                    `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                );
+            }
+
+            response.send(responseDeon);
+
+            return;
+        } catch (error) {
+            if (this.debugAllows('error')) {
+                const requestTime = this.computeRequestTime(request);
+
+                console.error(
+                    `[${time.stamp()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
+                    error,
+                );
+            }
+
+            response
+                .status(500)
+                .send('Server Error');
+            return;
+        }
+    }
+
+    private async handleEndpointCheck(
+        request: express.Request,
+        response: express.Response,
+    ) {
+        const requestID = (request as ServerRequest).requestID || uuid.generate();
+
+        try {
+            if (this.debugAllows('info')) {
+                console.info(
+                    `[${time.stamp()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
+                );
+            }
+
+
+            if (
+                !request.body.token
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(401)
+                    .send('Unauthorized');
+                return;
+            }
+
+
+            if (
+                !request.body.id
+                || !request.body.sha
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(400)
+                    .send('Bad Request');
+                return;
+            }
+
+
+            const {
+                token,
+                id: objectID,
+                sha,
+            } = request.body as ServerRequestCheckBody;
+
+
+            const verifiedToken = await this.verifyToken(token);
+
+            if (
+                !verifiedToken
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(403)
+                    .send('Forbidden');
+                return;
+            }
+
+
+            const objectData = await this.getObject(
+                objectID,
+            );
+
+            if (
+                !objectData
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(400)
+                    .send('Bad Request');
+                return;
+            }
+
+
+            const computedSha = computeSourceSha(objectData);
+            const checked = sha === computedSha;
+
+            const contentType = request.header('Content-Type');
+
+            const responseData = {
+                checked,
             };
 
 

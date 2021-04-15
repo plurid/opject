@@ -23,6 +23,12 @@ export type ServerRequestRegisterBody = {
     data: string;
 }
 
+export type ServerRequestCheckBody = {
+    token: string;
+    id: string;
+    sha: string;
+}
+
 
 export type DebugLevels =
     | 'none'
@@ -60,7 +66,7 @@ export type VerifyToken = (
 
 export type GetObject = (
     id: string,
-) => Promise<string>;
+) => Promise<string | undefined>;
 
 export type RegisterObject = (
     id: string,

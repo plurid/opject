@@ -23,6 +23,7 @@ export const DEFAULT_SERVER_OPTIONS = {
 
 export const ENDPOINT_REQUIRE = process.env.OPJECT_SERVER_ENDPOINT_REQUIRE || '/require';
 export const ENDPOINT_REGISTER = process.env.OPJECT_SERVER_ENDPOINT_REGISTER || '/register';
+export const ENDPOINT_CHECK = process.env.OPJECT_SERVER_ENDPOINT_CHECK || '/check';
 
 
 
