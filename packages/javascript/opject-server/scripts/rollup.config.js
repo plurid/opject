@@ -25,6 +25,13 @@ export default {
         },
     ],
     external: [
+        '@plurid/deon',
+        '@plurid/plurid-functions',
+        'path',
+        'fs',
+        'express',
+        'body-parser',
+        'crypto',
     ],
     watch: {
         include: 'source/**',
