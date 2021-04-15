@@ -1,5 +1,10 @@
 // #region imports
     // #region imports
+    import fetch from 'cross-fetch';
+    // #endregion imports
+
+
+    // #region imports
     import {
         OpjectClientOptions,
         OpjectClientRequiredOptions,
@@ -12,12 +17,14 @@
 // #region methods
 class Client {
     private options: OpjectClientRequiredOptions;
+    private requireURL: string;
 
 
     constructor(
         options: OpjectClientOptions,
     ) {
-        this.options = options;
+        this.options = this.handleOptions(options);
+        this.requireURL = this.options.url + this.options.requireRoute;
     }
 
 
@@ -25,17 +32,41 @@ class Client {
         objectID: string,
         serealState?: any,
     ) {
-        // call server for the object ID
+        const response = await fetch(
+            this.requireURL,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: objectID,
+                }),
+            },
+        );
 
-        // receive object source code
+        const data = await response.json();
 
         // check object source code
 
-        // instantiate object
+        const Opject = data.object;
+        const opject = new Opject;
 
-        // load sereal state
+        if (serealState) {
+            opject.loadSereal(serealState);
+        }
 
-        // return object instance
+        return opject;
+    }
+
+
+    private handleOptions (
+        options: OpjectClientOptions,
+    ): OpjectClientRequiredOptions {
+        return {
+            url: options.url,
+            requireRoute: options.url || '/require',
+        };
     }
 }
 // #endregion methods
