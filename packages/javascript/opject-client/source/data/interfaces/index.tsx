@@ -11,6 +11,7 @@ export type OpjectClientRequiredOptions = Required<OpjectClientOptions>;
 
 
 export interface OpjectRequestOptions {
+    skipCheck?: boolean;
     useVM?: boolean;
     vmContext?: any;
     vmInstantiation?: string;

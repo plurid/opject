@@ -13,6 +13,10 @@
 
         OpjectRequestOptions,
     } from '~data/interfaces';
+
+    import {
+        computeSourceSha,
+    } from '~utilities/sha';
     // #endregion imports
 // #endregion imports
 
@@ -41,6 +45,7 @@ class Client {
         options?: OpjectRequestOptions,
     ) {
         const {
+            skipCheck,
             useVM,
             vmContext,
             vmInstantiation,
@@ -63,25 +68,27 @@ class Client {
 
         const data = await response.json();
 
-        // const sourceSha = computeSourceSha(data.object);
-        // const checkResponse = await fetch(
-        //     this.checkURL,
-        //     {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${this.options.token}`,
-        //         },
-        //         body: JSON.stringify({
-        //             id: objectID,
-        //             sha: sourceSha,
-        //         }),
-        //     },
-        // );
-        // const checkData = await response.json();
-        // if (!checkData.checked) {
-        //     return;
-        // }
+        if (!skipCheck) {
+            const sourceSha = computeSourceSha(data.object);
+            const checkResponse = await fetch(
+                this.checkURL,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.options.token}`,
+                    },
+                    body: JSON.stringify({
+                        id: objectID,
+                        sha: sourceSha,
+                    }),
+                },
+            );
+            const checkData = await checkResponse.json();
+            if (!checkData.checked) {
+                return;
+            }
+        }
 
         if (useVM) {
             const vmSource = vmInstantiation
