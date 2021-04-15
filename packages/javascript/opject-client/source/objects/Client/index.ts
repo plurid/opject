@@ -1,8 +1,6 @@
 // #region imports
     // #region libraries
     import vm from 'vm';
-
-    import fetch from 'cross-fetch';
     // #endregion libraries
 
 
@@ -17,6 +15,10 @@
     import {
         computeSourceSha,
     } from '~utilities/sha';
+
+    import fetcher, {
+        Fetch,
+    } from '~utilities/fetcher';
     // #endregion imports
 // #endregion imports
 
@@ -29,6 +31,8 @@ class Client {
     private registerURL: string;
     private checkURL: string;
 
+    private fetch: Fetch;
+
 
     constructor(
         options: OpjectClientOptions,
@@ -37,6 +41,8 @@ class Client {
         this.requireURL = this.options.url + this.options.requireRoute;
         this.registerURL = this.options.url + this.options.registerRoute;
         this.checkURL = this.options.url + this.options.checkRoute;
+
+        this.fetch = fetcher(this.options.token);
     }
 
 
@@ -52,39 +58,27 @@ class Client {
             serealState,
         } = options || {};
 
-        const response = await fetch(
+        const requireData = await this.fetch(
             this.requireURL,
             {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.options.token}`,
-                },
-                body: JSON.stringify({
-                    id: objectID,
-                }),
+                id: objectID,
             },
         );
 
-        const data = await response.json();
+        const {
+            object,
+        } = requireData;
 
         if (!skipCheck) {
-            const sourceSha = computeSourceSha(data.object);
-            const checkResponse = await fetch(
+            const sourceSha = computeSourceSha(object);
+            const checkData = await this.fetch(
                 this.checkURL,
                 {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.options.token}`,
-                    },
-                    body: JSON.stringify({
-                        id: objectID,
-                        sha: sourceSha,
-                    }),
+                    id: objectID,
+                    sha: sourceSha,
                 },
             );
-            const checkData = await checkResponse.json();
+
             if (!checkData.checked) {
                 return;
             }
@@ -92,8 +86,8 @@ class Client {
 
         if (useVM) {
             const vmSource = vmInstantiation
-                ? data.object + vmInstantiation
-                : data.object;
+                ? object + vmInstantiation
+                : object;
 
             const vmContextObject = vm.createContext(vmContext || {});
 
@@ -105,7 +99,7 @@ class Client {
             return compute;
         }
 
-        const Opject = eval('(' + data.object + ')');
+        const Opject = eval('(' + object + ')');
         const opject = new Opject();
 
         if (serealState) {
@@ -119,22 +113,13 @@ class Client {
         objectID: string,
         objectData: string,
     ) {
-        const response = await fetch(
+        const data = await this.fetch(
             this.registerURL,
             {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.options.token}`,
-                },
-                body: JSON.stringify({
-                    object: objectID,
-                    data: objectData,
-                }),
+                object: objectID,
+                data: objectData,
             },
         );
-
-        const data = await response.json();
 
         return data.registered;
     }
