@@ -16,7 +16,7 @@ def request():
 @server.route('/register', methods=['POST'])
 def register():
     response = {
-        "register": False,
+        "registered": False,
     }
     return jsonify(response)
 
