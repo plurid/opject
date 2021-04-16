@@ -36,6 +36,7 @@ class Client {
     private requireURL: string;
     private registerURL: string;
     private checkURL: string;
+    private removeURL: string;
 
     private fetch: Fetch;
     private cache: Cacher;
@@ -48,6 +49,7 @@ class Client {
         this.requireURL = this.options.url + this.options.requireRoute;
         this.registerURL = this.options.url + this.options.registerRoute;
         this.checkURL = this.options.url + this.options.checkRoute;
+        this.removeURL = this.options.url + this.options.removeRoute;
 
         this.fetch = fetcher(this.options.token);
         this.cache = new Cacher();
@@ -133,7 +135,7 @@ class Client {
         const data = await this.fetch(
             this.registerURL,
             {
-                object: objectID,
+                id: objectID,
                 data: objectData,
             },
         );
@@ -153,6 +155,29 @@ class Client {
         return registered;
     }
 
+    public async remove(
+        objectID: string,
+    ) {
+        const data = await this.fetch(
+            this.removeURL,
+            {
+                id: objectID,
+            },
+        );
+
+        const {
+            removed,
+        } = data;
+
+        if (removed) {
+            this.cache.unset(
+                objectID,
+            );
+        }
+
+        return removed;
+    }
+
 
     private handleOptions (
         options: OpjectClientOptions,
@@ -163,6 +188,7 @@ class Client {
             requireRoute,
             registerRoute,
             checkRoute,
+            removeRoute,
             caching,
         } = options;
 
@@ -172,6 +198,7 @@ class Client {
             requireRoute: requireRoute || '/require',
             registerRoute: registerRoute || '/register',
             checkRoute: checkRoute || '/check',
+            removeRoute: removeRoute || '/remove',
             caching: resolveCaching(caching),
         };
     }

@@ -10,6 +10,7 @@ export interface OpjectClientOptions {
     requireRoute?: string;
     registerRoute?: string;
     checkRoute?: string;
+    removeRoute?: string;
     caching?: OpjectClientCaching;
 }
 

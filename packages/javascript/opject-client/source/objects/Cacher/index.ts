@@ -29,7 +29,7 @@ class Cacher {
         }
 
         if (time.now() > cached.expiration) {
-            this.objects.delete(objectID);
+            this.unset(objectID);
             return;
         }
 
@@ -50,6 +50,12 @@ class Cacher {
                 expiration: time.now() + cacheTime,
             },
         );
+    }
+
+    public unset(
+        objectID: string,
+    ) {
+        this.objects.delete(objectID);
     }
 
     public reset() {

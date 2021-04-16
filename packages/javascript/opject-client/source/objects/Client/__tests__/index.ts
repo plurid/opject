@@ -33,7 +33,9 @@ describe('Client', () => {
         );
         expect(registered).toBeTruthy();
 
-        const someObject = await client.request(objectID);
+        const someObject = await client.request(
+            objectID,
+        );
 
         expect(someObject.read()).toEqual(12);
     });
