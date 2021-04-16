@@ -40,6 +40,7 @@
         ENDPOINT_REQUIRE,
         ENDPOINT_REGISTER,
         ENDPOINT_CHECK,
+        ENDPOINT_REMOVE,
 
         OBJECTS_PATH,
     } from '~data/constants';
@@ -49,6 +50,7 @@
         ServerRequestObjectBody,
         ServerRequestRegisterBody,
         ServerRequestCheckBody,
+        ServerRequestRemoveBody,
 
         DebugLevels,
 
@@ -59,6 +61,7 @@
         VerifyToken,
         GetObject,
         RegisterObject,
+        RemoveObject,
     } from '~data/interfaces';
 
     import {
@@ -79,6 +82,7 @@ class OpjectServer {
     private verifyToken: VerifyToken;
     private customGetObject: GetObject | undefined;
     private customRegisterObject: RegisterObject | undefined;
+    private customRemoveObject: RemoveObject | undefined;
 
 
     constructor(
@@ -92,6 +96,7 @@ class OpjectServer {
         this.verifyToken = configuration.verifyToken;
         this.customGetObject = configuration.getObject;
         this.customRegisterObject = configuration.registerObject;
+        this.customRemoveObject = configuration.removeObject;
 
         this.configureServer();
 
@@ -193,6 +198,10 @@ class OpjectServer {
 
         this.serverApplication.post(ENDPOINT_CHECK, (request, response) => {
             this.handleEndpointCheck(request, response);
+        });
+
+        this.serverApplication.post(ENDPOINT_REMOVE, (request, response) => {
+            this.handleEndpointRemove(request, response);
         });
     }
 
@@ -385,7 +394,7 @@ class OpjectServer {
 
 
             if (
-                !request.body.object
+                !request.body.id
                 || !request.body.data
             ) {
                 if (this.debugAllows('warn')) {
@@ -405,7 +414,7 @@ class OpjectServer {
 
             const {
                 token,
-                object,
+                id: objectID,
                 data,
             } = request.body as ServerRequestRegisterBody;
 
@@ -431,7 +440,7 @@ class OpjectServer {
 
 
             const registered = await this.registerObject(
-                object,
+                objectID,
                 data,
             );
 
@@ -619,6 +628,163 @@ class OpjectServer {
 
             const responseData = {
                 checked,
+            };
+
+
+            if (
+                contentType !== DEON_MEDIA_TYPE
+            ) {
+                if (this.debugAllows('info')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.info(
+                        `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response.json(responseData);
+                return;
+            }
+
+
+            const deon = new Deon();
+            const responseDeon = deon.stringify(responseData);
+
+            response.setHeader(
+                'Content-Type',
+                DEON_MEDIA_TYPE,
+            );
+
+            if (this.debugAllows('info')) {
+                const requestTime = this.computeRequestTime(request);
+
+                console.info(
+                    `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                );
+            }
+
+            response.send(responseDeon);
+
+            return;
+        } catch (error) {
+            if (this.debugAllows('error')) {
+                const requestTime = this.computeRequestTime(request);
+
+                console.error(
+                    `[${time.stamp()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
+                    error,
+                );
+            }
+
+            response
+                .status(500)
+                .send('Server Error');
+            return;
+        }
+    }
+
+    private async handleEndpointRemove(
+        request: express.Request,
+        response: express.Response,
+    ) {
+        const requestID = (request as ServerRequest).requestID || uuid.generate();
+
+        try {
+            if (this.debugAllows('info')) {
+                console.info(
+                    `[${time.stamp()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
+                );
+            }
+
+
+            if (
+                !request.body.token
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(401)
+                    .send('Unauthorized');
+                return;
+            }
+
+
+            if (
+                !request.body.id
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(400)
+                    .send('Bad Request');
+                return;
+            }
+
+
+            const {
+                token,
+                id: objectID,
+            } = request.body as ServerRequestRegisterBody;
+
+
+            const verifiedToken = await this.verifyToken(token);
+
+            if (
+                !verifiedToken
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(403)
+                    .send('Forbidden');
+                return;
+            }
+
+
+            const removed = await this.removeObject(
+                objectID,
+            );
+
+            if (
+                !removed
+            ) {
+                if (this.debugAllows('warn')) {
+                    const requestTime = this.computeRequestTime(request);
+
+                    console.warn(
+                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                    );
+                }
+
+                response
+                    .status(400)
+                    .send('Bad Request');
+                return;
+            }
+
+
+            const contentType = request.header('Content-Type');
+
+            const responseData = {
+                removed,
             };
 
 
@@ -883,6 +1049,25 @@ class OpjectServer {
                 id,
             ),
             data,
+        );
+
+        return true;
+    }
+
+    private async removeObject(
+        id: string,
+    ) {
+        if (this.customRemoveObject) {
+            return await this.customRemoveObject(
+                id,
+            );
+        }
+
+        await fs.unlink(
+            path.join(
+                OBJECTS_PATH,
+                id,
+            ),
         );
 
         return true;

@@ -19,7 +19,7 @@ export type ServerRequestObjectBody = {
 
 export type ServerRequestRegisterBody = {
     token: string;
-    object: string;
+    id: string;
     data: string;
 }
 
@@ -27,6 +27,11 @@ export type ServerRequestCheckBody = {
     token: string;
     id: string;
     sha: string;
+}
+
+export type ServerRequestRemoveBody = {
+    token: string;
+    id: string;
 }
 
 
@@ -73,10 +78,15 @@ export type RegisterObject = (
     data: string,
 ) => Promise<boolean>;
 
+export type RemoveObject = (
+    id: string,
+) => Promise<boolean>;
+
 export interface OpjectServerConfiguration {
     verifyToken: VerifyToken;
     getObject?: GetObject;
     registerObject?: RegisterObject;
+    removeObject?: RemoveObject;
     options?: OpjectServerPartialOptions;
 }
 // #endregion module
