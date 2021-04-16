@@ -25,6 +25,10 @@ export default {
         },
     ],
     external: [
+        '@plurid/plurid-functions',
+        'vm',
+        'crypto',
+        'cross-fetch',
     ],
     watch: {
         include: 'source/**',
