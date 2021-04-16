@@ -13,6 +13,10 @@
     } from '~data/interfaces';
 
     import {
+        resolveCaching,
+    } from '~utilities/caching';
+
+    import {
         computeSourceSha,
     } from '~utilities/sha';
 
@@ -134,6 +138,7 @@ class Client {
             requireRoute,
             registerRoute,
             checkRoute,
+            caching,
         } = options;
 
         return {
@@ -142,6 +147,7 @@ class Client {
             requireRoute: requireRoute || '/require',
             registerRoute: registerRoute || '/register',
             checkRoute: checkRoute || '/check',
+            caching: resolveCaching(caching),
         };
     }
 }
