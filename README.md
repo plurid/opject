@@ -30,7 +30,7 @@
 
 ## About
 
-`opject` is a specification and implementation for passing objects through the network.
+`opject` is a specification and implementation for passing `object`s through the network.
 
 An `object` is a self-contained piece of code.
 
@@ -41,25 +41,34 @@ The passing of the object through the network is obtained in 2 steps:
 
 `opject` has clients for
 
-+ `NodeJS`
++ [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-client)
 + `Python`
 
 The `opject server` can serve any kind of object. However, depending on the preferred language, a specific `opject server` can be used for
 
-+ `NodeJS`
++ [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-server)
 + `Python`
 
 
 
 ## Packages
 
-<a target="_blank" href="https://www.npmjs.com/package/@plurid/opject">
+<a target="_blank" href="https://www.npmjs.com/package/@plurid/opject-client">
     <img src="https://img.shields.io/npm/v/@plurid/opject.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
 </a>
 
-[@plurid/opject][opject] • opject
+[@plurid/opject-client][javascript-opject-client] • `JavaScript` opject client
 
-[opject]: https://github.com/plurid/plurid/tree/master/packages/opject
+[javascript-opject-client]: https://github.com/plurid/opject/tree/master/packages/javascript/opject-client
+
+
+<a target="_blank" href="https://www.npmjs.com/package/@plurid/opject-server">
+    <img src="https://img.shields.io/npm/v/@plurid/opject.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
+</a>
+
+[@plurid/opject-server][javascript-opject-server] • `JavaScript` opject server
+
+[javascript-opject-server]: https://github.com/plurid/opject/tree/master/packages/javascript/opject-server
 
 
 
