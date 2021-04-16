@@ -444,23 +444,6 @@ class OpjectServer {
                 data,
             );
 
-            if (
-                !registered
-            ) {
-                if (this.debugAllows('warn')) {
-                    const requestTime = this.computeRequestTime(request);
-
-                    console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
-                    );
-                }
-
-                response
-                    .status(400)
-                    .send('Bad Request');
-                return;
-            }
-
 
             const contentType = request.header('Content-Type');
 
@@ -736,7 +719,7 @@ class OpjectServer {
             const {
                 token,
                 id: objectID,
-            } = request.body as ServerRequestRegisterBody;
+            } = request.body as ServerRequestRemoveBody;
 
 
             const verifiedToken = await this.verifyToken(token);
@@ -762,23 +745,6 @@ class OpjectServer {
             const removed = await this.removeObject(
                 objectID,
             );
-
-            if (
-                !removed
-            ) {
-                if (this.debugAllows('warn')) {
-                    const requestTime = this.computeRequestTime(request);
-
-                    console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
-                    );
-                }
-
-                response
-                    .status(400)
-                    .send('Bad Request');
-                return;
-            }
 
 
             const contentType = request.header('Content-Type');
