@@ -13,7 +13,9 @@ export interface OpjectClientOptions {
     caching?: OpjectClientCaching;
 }
 
-export type OpjectClientRequiredOptions = Required<OpjectClientOptions>;
+export type OpjectClientRequiredOptions = Required<OpjectClientOptions> & {
+    caching: number;
+};
 
 
 export interface OpjectRequestOptions {
@@ -22,6 +24,13 @@ export interface OpjectRequestOptions {
     vmContext?: any;
     vmInstantiation?: string;
     serealState?: any;
-    caching?: OpjectClientCaching;
+    useCache?: boolean;
+}
+
+export interface CachedObject {
+    data: {
+        object: string;
+    };
+    expiration: number;
 }
 // #endregion module

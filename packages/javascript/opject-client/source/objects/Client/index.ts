@@ -12,6 +12,8 @@
         OpjectRequestOptions,
     } from '~data/interfaces';
 
+    import Cacher from '~objects/Cacher';
+
     import {
         resolveCaching,
     } from '~utilities/caching';
@@ -36,6 +38,7 @@ class Client {
     private checkURL: string;
 
     private fetch: Fetch;
+    private cache: Cacher;
 
 
     constructor(
@@ -47,6 +50,7 @@ class Client {
         this.checkURL = this.options.url + this.options.checkRoute;
 
         this.fetch = fetcher(this.options.token);
+        this.cache = new Cacher();
     }
 
 
@@ -60,20 +64,29 @@ class Client {
             vmContext,
             vmInstantiation,
             serealState,
+            useCache,
         } = options || {};
 
-        const requireData = await this.fetch(
-            this.requireURL,
-            {
-                id: objectID,
-            },
-        );
+        const skipCheckValue = skipCheck ?? false;
+
+        const cachedData = useCache
+            ? this.cache.get(objectID)
+            : undefined;
+
+        const requireData = cachedData
+            ? cachedData
+            : await this.fetch(
+                this.requireURL,
+                {
+                    id: objectID,
+                },
+            );
 
         const {
             object,
         } = requireData;
 
-        if (!skipCheck) {
+        if (!skipCheckValue) {
             const sourceSha = computeSourceSha(object);
             const checkData = await this.fetch(
                 this.checkURL,
@@ -125,7 +138,19 @@ class Client {
             },
         );
 
-        return data.registered;
+        const {
+            registered,
+        } = data;
+
+        if (registered) {
+            this.cache.set(
+                objectID,
+                objectData,
+                this.options.caching,
+            );
+        }
+
+        return registered;
     }
 
 
