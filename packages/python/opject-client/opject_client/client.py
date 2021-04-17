@@ -5,43 +5,67 @@ import requests
 class Client:
     __init__(
         self,
-        url: str,
+        endpoint: str,
         token: str,
         require_route: str = '/require',
         register_route: str = '/register',
         check_route: str = '/check',
         remove_route: str = '/remove',
     ):
-        self.url = url
+        self.endpoint = endpoint
         self.token = token
-        self.require_url = url + require_route
-        self.register_url = url + register_route
-        self.check_url = url + check_route
-        self.remove_url = url + remove_route
+        self.require_url = endpoint + require_route
+        self.register_url = endpoint + register_route
+        self.check_url = endpoint + check_route
+        self.remove_url = endpoint + remove_route
 
 
     def request(
         self,
-        opject_id: str,
+        id: str,
     ):
-        object_name = opject_id
+        object_name = id
 
         response = requests.post(
             self.require_url,
             json = {
-                'id': opject_id
-            }
+                'id': id,
+            },
         )
         response_data = response.json()
 
         exec(response_data["object"])
-        obj = eval('%s()', object_name)
+        obj = eval('%s()' % object_name)
         return obj
 
 
-    def register(self):
-        pass
+    def register(
+        self,
+        id: str,
+        data: str,
+    ):
+        response = requests.post(
+            self.register_url,
+            json = {
+                'id': id,
+                'data': data,
+            },
+        )
+        response_data = response.json()
+
+        return response_data.registered
 
 
-    def remove(self):
-        pass
+    def remove(
+        self,
+        id: str,
+    ):
+        response = requests.post(
+            self.remove_url,
+            json = {
+                'id': id,
+            },
+        )
+        response_data = response.json()
+
+        return response_data.removed

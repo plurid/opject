@@ -1,3 +1,3 @@
 #region exports
-from .opject_client import opject_client
+from client import Client
 #endregion exports
