@@ -146,6 +146,11 @@ class Client {
         const opject = new Opject();
 
         if (serealState) {
+            if (typeof opject.loadSereal !== 'function') {
+                console.log(`Opject '${objectID}' is not a serealable object.`);
+                return;
+            }
+
             opject.loadSereal(serealState);
         }
 
