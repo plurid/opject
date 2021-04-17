@@ -1,3 +1,3 @@
 #region exports
-from client import Client
+from .client import Client
 #endregion exports

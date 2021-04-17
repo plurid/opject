@@ -1,5 +1,7 @@
 import requests
 
+from typing import Any
+
 
 
 class Client:
@@ -11,7 +13,7 @@ class Client:
         register_route: str = '/register',
         check_route: str = '/check',
         remove_route: str = '/remove',
-    ):
+    ) -> None:
         self.endpoint = endpoint
         self.token = token
         self.require_url = endpoint + require_route
@@ -23,11 +25,14 @@ class Client:
     def request(
         self,
         id: str,
-    ):
+    ) -> Any:
         object_name = id
 
         response = requests.post(
             self.require_url,
+            headers = {
+                'Authorization': 'Bearer %s' % self.token,
+            },
             json = {
                 'id': id,
             },
@@ -43,9 +48,12 @@ class Client:
         self,
         id: str,
         data: str,
-    ):
+    ) -> Any:
         response = requests.post(
             self.register_url,
+            headers = {
+                'Authorization': 'Bearer %s' % self.token,
+            },
             json = {
                 'id': id,
                 'data': data,
@@ -62,6 +70,9 @@ class Client:
     ):
         response = requests.post(
             self.remove_url,
+            headers = {
+                'Authorization': 'Bearer %s' % self.token,
+            },
             json = {
                 'id': id,
             },

@@ -1,5 +1,5 @@
 # Run with
-# python -m tests.test_delog
+# python -m tests.test_opject_client
 
 
 #region imports
@@ -22,10 +22,10 @@ class TestDelog(unittest.TestCase):
             token=token,
         )
         opject_client.register(
-            'some-opject',
+            'SomeOpject',
             'class SomeOpject:\n\tdef __init__(self):\n\t\tself.internal = 12\n\tdef read(self):\n\t\treturn self.internal\n',
         )
-        some_opject = opject_client.require('some-opject')
+        some_opject = opject_client.require('SomeOpject')
         print(some_opject.read())
 #endregion module
 
