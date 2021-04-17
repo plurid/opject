@@ -146,6 +146,25 @@ main();
 
 
 
+<a target="_blank" href="https://pypi.org/project/opject-client">
+    <img src="https://img.shields.io/pypi/v/opject-client.svg?logo=pypi&colorB=1380C3&style=for-the-badge" alt="Version">
+</a>
+
+[@plurid/opject-client-python][opject-client-python] • `Python` opject client
+
+[opject-client-python]: https://github.com/plurid/opject/tree/master/packages/python/opject-client
+
+
+<a target="_blank" href="https://pypi.org/project/opject-server">
+    <img src="https://img.shields.io/pypi/v/opject-server.svg?logo=pypi&colorB=1380C3&style=for-the-badge" alt="Version">
+</a>
+
+[@plurid/opject-server-python][opject-server-python] • `Python` opject server
+
+[opject-server-python]: https://github.com/plurid/opject/tree/master/packages/python/opject-server
+
+
+
 ## [Codeophon](https://github.com/ly3xqhl8g9/codeophon)
 
 + licensing: [delicense](https://github.com/ly3xqhl8g9/delicense)
