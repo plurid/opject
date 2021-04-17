@@ -1,3 +1,3 @@
 #region exports
-from .opject_server import opject_server
+from .server import Server
 #endregion exports

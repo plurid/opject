@@ -3,9 +3,57 @@ from flask_classful import FlaskView
 
 
 
-class EndpointRequire(FlaskView):
-    def post(self):
-        pass
+def endpoint_require(
+    custom_get_object,
+):
+    return class EndpointRequire(FlaskView):
+        route_base = '/require'
+
+        def post(self):
+            request_data = request.get_json()
+            response = {
+                'object': False,
+            }
+            return response
+
+def endpoint_register(
+    custom_get_object,
+):
+    return class EndpointRegister(FlaskView):
+        route_base = '/register'
+
+        def post(self):
+            request_data = request.get_json()
+            response = {
+                'registered': False,
+            }
+            return response
+
+def endpoint_check(
+    custom_get_object,
+):
+    return class EndpointCheck(FlaskView):
+        route_base = '/check'
+
+        def post(self):
+            request_data = request.get_json()
+            response = {
+                'checked': False,
+            }
+            return response
+
+def endpoint_remove(
+    custom_get_object,
+):
+    return class EndpointRemove(FlaskView):
+        route_base = '/remove'
+
+        def post(self):
+            request_data = request.get_json()
+            response = {
+                'removed': False,
+            }
+            return response
 
 
 class Server:
@@ -44,41 +92,14 @@ class Server:
     def __handle_endpoints(
         self,
     ):
-        pass
+        EndpointRequire = endpoint_require(self.custom_get_object)
+        EndpointRequire.register(self.app)
 
+        EndpointRegister = endpoint_register(self.custom_get_object)
+        EndpointRegister.register(self.app)
 
+        EndpointCheck = endpoint_check(self.custom_get_object)
+        EndpointCheck.register(self.app)
 
-server = Flask(__name__)
-
-
-
-@server.route('/request', methods=['POST'])
-def request():
-    response = {
-        "object": "",
-    }
-    return jsonify(response)
-
-
-@server.route('/register', methods=['POST'])
-def register():
-    response = {
-        "registered": False,
-    }
-    return jsonify(response)
-
-
-@server.route('/check', methods=['POST'])
-def check():
-    response = {
-        "checked": False,
-    }
-    return jsonify(response)
-
-
-@server.route('/remove', methods=['POST'])
-def remove():
-    response = {
-        "removed": False,
-    }
-    return jsonify(response)
+        EndpointRemove = endpoint_remove(self.custom_get_object)
+        EndpointRemove.register(self.app)
