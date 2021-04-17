@@ -115,6 +115,17 @@ class Client {
         }
 
 
+        const installedDependencies = await this.installDependencies(
+            dependencies,
+            useYarn,
+        );
+
+        if (!installedDependencies) {
+            console.log('Could not install dependencies.');
+            return;
+        }
+
+
         if (useVM) {
             const vmSource = vmInstantiation
                 ? object + vmInstantiation
@@ -130,16 +141,6 @@ class Client {
             return compute;
         }
 
-
-        const installedDependencies = await this.installDependencies(
-            dependencies,
-            useYarn,
-        );
-
-        if (!installedDependencies) {
-            console.log('Could not install dependencies.');
-            return;
-        }
 
         const Opject = eval('(' + object + ')');
         const opject = new Opject();
