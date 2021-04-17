@@ -84,8 +84,8 @@ opject_name = 'SomeOpject'
 
 
 opject_client = OpjectClient(
-    endpoint=endpoint,
-    token=token,
+    endpoint = endpoint,
+    token = token,
 )
 opject_client.register(
     opject_id,
