@@ -1,8 +1,10 @@
 import re
-
 import requests
 
-from typing import Any, Optional
+from typing import (
+    Any,
+    Optional,
+)
 
 
 
@@ -27,7 +29,7 @@ class Client:
     def require(
         self,
         id: str,
-        name: Optional[str],
+        name: Optional[str] = None,
     ) -> Any:
         object_name = name
 
@@ -43,7 +45,7 @@ class Client:
         response_data = response.json()
 
         if not object_name:
-            match = re.search("^\s+class (\w+):", response_data["object"])
+            match = re.search("^\s*class (\w+):", response_data["object"])
             if match:
                 object_name = match[1]
 
