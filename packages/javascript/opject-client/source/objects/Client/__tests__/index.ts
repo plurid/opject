@@ -41,7 +41,7 @@ describe('Client', () => {
     });
 
 
-    it('opject with dependencies', async () => {
+    xit('opject with dependencies', async () => {
         const registered = await client.register(
             objectID,
             objectSource,

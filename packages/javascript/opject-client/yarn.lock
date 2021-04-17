@@ -526,9 +526,9 @@
     "@nodelib/fs.scandir" "2.1.4"
     fastq "^1.6.0"
 
-"@plurid/plurid-functions@^0.0.0-1":
+"@plurid/plurid-functions@0.0.0-1":
   version "0.0.0-1"
-  resolved "https://npm.plurid.cloud/@plurid%2fplurid-functions/-/plurid-functions-0.0.0-1.tgz#bafc34fc9b356b8863edecefcbc7a4d7768e5f0d"
+  resolved "https://registry.yarnpkg.com/@plurid/plurid-functions/-/plurid-functions-0.0.0-1.tgz#bafc34fc9b356b8863edecefcbc7a4d7768e5f0d"
   integrity sha512-wLVlB/pv4OGv1oGCeS+J30CWSrGkTU/AbOIpqW/nb2lfy1riBARQp4oSyG8zEVSh/LtBheTe0wmUVw1bOfQWcA==
 
 "@rollup/plugin-commonjs@^17.1.0":
