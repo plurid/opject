@@ -80,7 +80,9 @@ endpoint = 'http://server.address'
 token = 'secret_token_obtained_from_server'
 
 opject_id = 'some-opject-python'
+# Optional name.
 opject_name = 'SomeOpject'
+
 opject_data = 'class SomeOpject:\n\tdef __init__(self):\n\t\tself.internal = 12\n\tdef read(self):\n\t\treturn self.internal\n'
 ## The data can also be a multiline string.
 # opject_data_multiline = """
