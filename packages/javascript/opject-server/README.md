@@ -51,6 +51,8 @@ The `opject server` can serve any kind of object. However, depending on the pref
 + [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-server)
 + [`Python`](https://github.com/plurid/opject/tree/master/packages/python/opject-server)
 
+The [`opject registry`](https://github.com/plurid/opject/tree/master/packages/registry) grants extended functionality through a web interface. The registry can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
+
 
 
 ## Install
