@@ -23,6 +23,8 @@
 ### Contents
 
 + [About](#about)
++ [Install](#install)
++ [Usage](#usage)
 + [Packages](#packages)
 + [Codeophon](#codeophon)
 
@@ -50,6 +52,52 @@ The `opject server` can serve any kind of object. However, depending on the pref
 + [`Python`](https://github.com/plurid/opject/tree/master/packages/python/opject-server)
 
 The [`opject registry`](https://github.com/plurid/opject/tree/master/packages/registry) grants extended functionality through a web interface. The registry can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
+
+
+
+## Install
+
+Install by running
+
+``` bash
+pip install opject-client
+```
+
+
+
+## Usage
+
+The `opject` client requires a server. The server can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
+
+The simplest use-case implies registering an `opject`, requiring, and running it.
+
+
+``` python
+from opject_client import Client as OpjectClient
+
+
+
+endpoint = 'http://server.address'
+token = 'secret_token_obtained_from_server'
+
+opject_id = 'some-opject-python'
+opject_name = 'SomeOpject'
+
+
+opject_client = OpjectClient(
+    endpoint=endpoint,
+    token=token,
+)
+opject_client.register(
+    opject_id,
+    'class SomeOpject:\n\tdef __init__(self):\n\t\tself.internal = 12\n\tdef read(self):\n\t\treturn self.internal\n',
+)
+some_opject = opject_client.require(
+    id = opject_id,
+    name = opject_name,
+)
+value = someOpject.read() # 12
+```
 
 
 
