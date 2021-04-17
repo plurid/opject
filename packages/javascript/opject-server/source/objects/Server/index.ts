@@ -59,8 +59,11 @@
         OpjectServerPartialOptions,
         OpjectServerConfiguration,
 
+        OpjectMetadata,
+
         VerifyToken,
         GetObject,
+        GetMetadata,
         RegisterObject,
         RegisterMetadata,
         RemoveObject,
@@ -83,6 +86,7 @@ class OpjectServer {
 
     private verifyToken: VerifyToken;
     private customGetObject: GetObject | undefined;
+    private customGetMetadata: GetMetadata | undefined;
     private customRegisterObject: RegisterObject | undefined;
     private customRegisterMetadata: RegisterMetadata | undefined;
     private customRemoveObject: RemoveObject | undefined;
@@ -98,6 +102,7 @@ class OpjectServer {
 
         this.verifyToken = configuration.verifyToken;
         this.customGetObject = configuration.getObject;
+        this.customGetMetadata = configuration.getMetadata;
         this.customRegisterObject = configuration.registerObject;
         this.customRegisterMetadata = configuration.registerMetadata;
         this.customRemoveObject = configuration.removeObject;
@@ -286,6 +291,7 @@ class OpjectServer {
 
 
             const objectData = await this.getObject(objectID);
+            const objectMetadata = await this.getMetadata(objectID);
 
             if (
                 !objectData
@@ -305,11 +311,11 @@ class OpjectServer {
             }
 
 
-
             const contentType = request.header('Content-Type');
 
             const responseData = {
                 object: objectData,
+                dependencies: objectMetadata?.dependencies,
             };
 
 
@@ -1006,6 +1012,32 @@ class OpjectServer {
             ),
             'utf-8',
         );
+    }
+
+    private async getMetadata(
+        id: string,
+    ): Promise<OpjectMetadata | undefined> {
+        if (this.customGetMetadata) {
+            return await this.customGetMetadata(
+                id,
+            );
+        }
+
+        try {
+            const deonData = await fs.readFile(
+                path.join(
+                    METADATA_PATH,
+                    id,
+                ),
+                'utf-8',
+            );
+            const deon = new Deon();
+            const data = await deon.parse(deonData);
+
+            return data;
+        } catch (error) {
+            return;
+        }
     }
 
     private async registerObject(

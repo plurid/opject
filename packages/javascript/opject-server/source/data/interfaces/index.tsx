@@ -65,6 +65,11 @@ export interface OpjectServerOptions {
 export type OpjectServerPartialOptions = Partial<OpjectServerOptions>;
 
 
+export interface OpjectMetadata {
+    dependencies: string[],
+}
+
+
 
 export type VerifyToken = (
     token: string,
@@ -74,6 +79,10 @@ export type GetObject = (
     id: string,
 ) => Promise<string | undefined>;
 
+export type GetMetadata = (
+    id: string,
+) => Promise<OpjectMetadata | undefined>;
+
 export type RegisterObject = (
     id: string,
     data: string,
@@ -81,9 +90,7 @@ export type RegisterObject = (
 
 export type RegisterMetadata = (
     id: string,
-    data: {
-        dependencies: string[],
-    },
+    data: OpjectMetadata,
 ) => Promise<boolean>;
 
 export type RemoveObject = (
@@ -93,6 +100,7 @@ export type RemoveObject = (
 export interface OpjectServerConfiguration {
     verifyToken: VerifyToken;
     getObject?: GetObject;
+    getMetadata?: GetMetadata;
     registerObject?: RegisterObject;
     registerMetadata?: RegisterMetadata;
     removeObject?: RemoveObject;
