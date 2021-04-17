@@ -57,18 +57,18 @@ The `opject server` can serve any kind of object. However, depending on the pref
     <img src="https://img.shields.io/npm/v/@plurid/opject.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
 </a>
 
-[@plurid/opject-client][javascript-opject-client] • `JavaScript` opject client
+[@plurid/opject-client-javascript][opject-client-javascript] • `JavaScript` opject client
 
-[javascript-opject-client]: https://github.com/plurid/opject/tree/master/packages/javascript/opject-client
+[opject-client-javascript]: https://github.com/plurid/opject/tree/master/packages/javascript/opject-client
 
 
 <a target="_blank" href="https://www.npmjs.com/package/@plurid/opject-server">
     <img src="https://img.shields.io/npm/v/@plurid/opject.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
 </a>
 
-[@plurid/opject-server][javascript-opject-server] • `JavaScript` opject server
+[@plurid/opject-server-javascript][opject-server-javascript] • `JavaScript` opject server
 
-[javascript-opject-server]: https://github.com/plurid/opject/tree/master/packages/javascript/opject-server
+[opject-server-javascript]: https://github.com/plurid/opject/tree/master/packages/javascript/opject-server
 
 
 
