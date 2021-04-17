@@ -30,6 +30,8 @@ export interface OpjectRequestOptions {
     /**
      * Install dependencies using Yarn.
      *
+     * Changeable through environment variable `OPJECT_CLIENT_USE_YARN`.
+     *
      * Default `false`.
      */
     useYarn?: boolean;

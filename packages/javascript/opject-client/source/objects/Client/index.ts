@@ -10,6 +10,10 @@
 
     // #region imports
     import {
+        USE_YARN,
+    } from '~data/constants';
+
+    import {
         OpjectClientOptions,
         OpjectClientRequiredOptions,
 
@@ -226,7 +230,7 @@ class Client {
 
     private async installDependencies(
         dependencies: string[] | undefined,
-        useYarn: boolean = false,
+        useYarn: boolean = USE_YARN,
     ) {
         if (!dependencies) {
             return true;
@@ -235,8 +239,8 @@ class Client {
         try {
             const dependenciesList = dependencies.join(' ');
             const installCommand = useYarn
-                ? `npm install ${dependenciesList}`
-                : `yarn add ${dependenciesList}`;
+                ? `yarn add ${dependenciesList}`
+                : `npm install ${dependenciesList}`;
 
             execSync(
                 installCommand,
