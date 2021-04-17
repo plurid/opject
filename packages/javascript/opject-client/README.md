@@ -103,7 +103,7 @@ class SomeOpject {
 
 
 const main = async () => {
-    const registered = await client.register(
+    const registered = await opjectClient.register(
         opjectID,
         opjectSource,
     );
@@ -113,7 +113,7 @@ const main = async () => {
         return;
     }
 
-    const someOpject = await client.request(
+    const someOpject = await opjectClient.request(
         opjectID,
     );
 
