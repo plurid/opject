@@ -78,7 +78,7 @@ Install the peer dependencies
 
 The `opject` client requires a server. The server can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
 
-The simplest use-case implies registering an `opject`, retrieving, and running it.
+The simplest use-case implies registering an `opject`, requiring, and running it.
 
 ``` typescript
 import OpjectClient from '@plurid/opject-client';
@@ -113,7 +113,7 @@ const main = async () => {
         return;
     }
 
-    const someOpject = await opjectClient.request(
+    const someOpject = await opjectClient.require(
         opjectID,
     );
 
