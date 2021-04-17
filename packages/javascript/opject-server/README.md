@@ -23,6 +23,8 @@
 ### Contents
 
 + [About](#about)
++ [Install](#install)
++ [Usage](#usage)
 + [Packages](#packages)
 + [Codeophon](#codeophon)
 
@@ -48,6 +50,99 @@ The `opject server` can serve any kind of object. However, depending on the pref
 
 + [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-server)
 + `Python`
+
+
+
+## Install
+
+Install using
+
+``` bash
+npm install @plurid/opject-server
+```
+
+or
+
+``` bash
+yarn add @plurid/opject-server
+```
+
+Install the peer dependencies
+
+``` bash
+@plurid/deon @plurid/plurid-functions express body-parser crypto
+```
+
+
+
+## Usage
+
+A simple `opject server` will only require passing a `verifyToken` function and `start`ing the server.
+
+
+``` typescript
+import OpjectServer from '@plurid/opject-server';
+
+
+const opjectServer = new OpjectServer({
+    verifyToken: async (
+        token,
+    ) => {
+        if (token === '__TESTS__') {
+            return true;
+        }
+
+        return false;
+    },
+});
+
+const PORT = 7766;
+
+
+opjectServer.start(PORT);
+```
+
+The `opject` server will use the local filesystem for storing data.
+
+Custom functions can be passed to the `opject` server to implement any kind of logic handling following the interfaces
+
+``` typescript
+export type VerifyToken = (
+    token: string,
+) => Promise<boolean>;
+
+export type GetObject = (
+    id: string,
+) => Promise<string | undefined>;
+
+export type GetMetadata = (
+    id: string,
+) => Promise<OpjectMetadata | undefined>;
+
+export type RegisterObject = (
+    id: string,
+    data: string,
+) => Promise<boolean>;
+
+export type RegisterMetadata = (
+    id: string,
+    data: OpjectMetadata,
+) => Promise<boolean>;
+
+export type RemoveObject = (
+    id: string,
+) => Promise<boolean>;
+
+export interface OpjectServerConfiguration {
+    verifyToken: VerifyToken;
+    getObject?: GetObject;
+    getMetadata?: GetMetadata;
+    registerObject?: RegisterObject;
+    registerMetadata?: RegisterMetadata;
+    removeObject?: RemoveObject;
+    options?: OpjectServerPartialOptions;
+}
+```
 
 
 
