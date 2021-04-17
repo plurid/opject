@@ -49,7 +49,11 @@ class Client:
         self,
         id: str,
         data: str,
+        strip: bool = True,
     ) -> Any:
+        if strip:
+            data = data.strip() + '\n'
+
         response = requests.post(
             self.register_url,
             headers = {
