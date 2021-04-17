@@ -17,7 +17,7 @@
         OpjectClientOptions,
         OpjectClientRequiredOptions,
 
-        OpjectRequestOptions,
+        OpjectRequireOptions,
     } from '~data/interfaces';
 
     import Cacher from '~objects/Cacher';
@@ -64,9 +64,9 @@ class Client {
     }
 
 
-    public async request(
+    public async require(
         objectID: string,
-        options?: OpjectRequestOptions,
+        options?: OpjectRequireOptions,
     ) {
         const {
             skipCheck,

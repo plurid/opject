@@ -33,7 +33,7 @@ describe('Client', () => {
         );
         expect(registered).toBeTruthy();
 
-        const someObject = await client.request(
+        const someObject = await client.require(
             objectID,
         );
 
@@ -51,7 +51,7 @@ describe('Client', () => {
         );
         expect(registered).toBeTruthy();
 
-        const someObject = await client.request(
+        const someObject = await client.require(
             objectID,
             {
                 useYarn: true,
@@ -69,7 +69,7 @@ describe('Client', () => {
         );
         expect(registered).toBeTruthy();
 
-        const someObject = await client.request(
+        const someObject = await client.require(
             objectID,
             {
                 useVM: true,
