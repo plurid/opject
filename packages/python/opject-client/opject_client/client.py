@@ -25,8 +25,9 @@ class Client:
     def require(
         self,
         id: str,
+        name: str,
     ) -> Any:
-        object_name = id
+        object_name = name
 
         response = requests.post(
             self.require_url,

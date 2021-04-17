@@ -15,18 +15,24 @@ endpoint='http://localhost:7766'
 token='__TESTS__'
 
 
-class TestDelog(unittest.TestCase):
+class TestOpjectClient(unittest.TestCase):
     def test_simple(self):
+        opject_id='some-opject-python'
+        opject_name='SomeOpject'
+
         opject_client = OpjectClient(
             endpoint=endpoint,
             token=token,
         )
         opject_client.register(
-            'SomeOpject',
+            opject_id,
             'class SomeOpject:\n\tdef __init__(self):\n\t\tself.internal = 12\n\tdef read(self):\n\t\treturn self.internal\n',
         )
-        some_opject = opject_client.require('SomeOpject')
-        print(some_opject.read())
+        some_opject = opject_client.require(
+            id = opject_id,
+            name = opject_name,
+        )
+        self.assertEqual(some_opject.read(), 12)
 #endregion module
 
 
