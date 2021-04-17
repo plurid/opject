@@ -26,11 +26,19 @@ export interface OpjectRequestOptions {
     vmInstantiation?: string;
     serealState?: any;
     useCache?: boolean;
+
+    /**
+     * Install dependencies using Yarn.
+     *
+     * Default `false`.
+     */
+    useYarn?: boolean;
 }
 
 export interface CachedObject {
     data: {
         object: string;
+        dependencies?: string[];
     };
     expiration: number;
 }

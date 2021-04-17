@@ -41,6 +41,27 @@ describe('Client', () => {
     });
 
 
+    it('opject with dependencies', async () => {
+        const registered = await client.register(
+            objectID,
+            objectSource,
+            [
+                '@plurid/plurid-functions@0.0.0-1',
+            ],
+        );
+        expect(registered).toBeTruthy();
+
+        const someObject = await client.request(
+            objectID,
+            {
+                useYarn: true,
+            },
+        );
+
+        expect(someObject.read()).toEqual(12);
+    });
+
+
     xit('vm test', async () => {
         const registered = await client.register(
             objectID,

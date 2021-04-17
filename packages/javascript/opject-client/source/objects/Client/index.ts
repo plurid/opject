@@ -1,6 +1,10 @@
 // #region imports
     // #region libraries
     import vm from 'vm';
+
+    import {
+        execSync,
+    } from 'child_process';
     // #endregion libraries
 
 
@@ -67,6 +71,7 @@ class Client {
             vmInstantiation,
             serealState,
             useCache,
+            useYarn,
         } = options || {};
 
         const skipCheckValue = skipCheck ?? false;
@@ -86,7 +91,9 @@ class Client {
 
         const {
             object,
+            dependencies,
         } = requireData;
+
 
         if (!skipCheckValue) {
             const sourceSha = computeSourceSha(object);
@@ -103,6 +110,7 @@ class Client {
             }
         }
 
+
         if (useVM) {
             const vmSource = vmInstantiation
                 ? object + vmInstantiation
@@ -116,6 +124,17 @@ class Client {
             );
 
             return compute;
+        }
+
+
+        const installedDependencies = await this.installDependencies(
+            dependencies,
+            useYarn,
+        );
+
+        if (!installedDependencies) {
+            console.log('Could not install dependencies.');
+            return;
         }
 
         const Opject = eval('(' + object + ')');
@@ -181,7 +200,7 @@ class Client {
     }
 
 
-    private handleOptions (
+    private handleOptions(
         options: OpjectClientOptions,
     ): OpjectClientRequiredOptions {
         const {
@@ -203,6 +222,33 @@ class Client {
             removeRoute: removeRoute || '/remove',
             caching: resolveCaching(caching),
         };
+    }
+
+    private async installDependencies(
+        dependencies: string[] | undefined,
+        useYarn: boolean = false,
+    ) {
+        if (!dependencies) {
+            return true;
+        }
+
+        try {
+            const dependenciesList = dependencies.join(' ');
+            const installCommand = useYarn
+                ? `npm install ${dependenciesList}`
+                : `yarn add ${dependenciesList}`;
+
+            execSync(
+                installCommand,
+                {
+                    cwd: process.cwd(),
+                },
+            );
+
+            return true;
+        } catch (error) {
+            return;
+        }
     }
 }
 // #endregion methods
