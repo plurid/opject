@@ -5,7 +5,7 @@ from typing import Any
 
 
 class Client:
-    __init__(
+    def __init__(
         self,
         endpoint: str,
         token: str,
@@ -22,7 +22,7 @@ class Client:
         self.remove_url = endpoint + remove_route
 
 
-    def request(
+    def require(
         self,
         id: str,
     ) -> Any:
@@ -61,7 +61,7 @@ class Client:
         )
         response_data = response.json()
 
-        return response_data.registered
+        return response_data["registered"]
 
 
     def remove(
@@ -79,4 +79,4 @@ class Client:
         )
         response_data = response.json()
 
-        return response_data.removed
+        return response_data["removed"]
