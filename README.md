@@ -42,12 +42,12 @@ The passing of the object through the network is obtained in 2 steps:
 `opject` has clients for
 
 + [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-client)
-+ `Python`
++ [`Python`](https://github.com/plurid/opject/tree/master/packages/python/opject-client)
 
 The `opject server` can serve any kind of object. However, depending on the preferred language, a specific `opject server` can be used for
 
 + [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-server)
-+ `Python`
++ [`Python`](https://github.com/plurid/opject/tree/master/packages/python/opject-server)
 
 
 
