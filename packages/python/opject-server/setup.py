@@ -11,7 +11,7 @@ setuptools.setup(
     version="0.0.0",
     author="ly3xqhl8g9",
     author_email="ly3xqhl8g9@plurid.com",
-    description="server for opject",
+    description="server for object passing",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/plurid/opject",

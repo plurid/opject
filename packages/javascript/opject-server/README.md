@@ -15,7 +15,7 @@
 
 
 <h3 align="center">
-    Object Passing Protocol
+    Object Passing Library
 </h3>
 
 

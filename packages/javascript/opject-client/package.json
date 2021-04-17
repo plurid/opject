@@ -1,7 +1,7 @@
 {
     "name": "@plurid/opject-client",
     "version": "0.0.0-0",
-    "description": "object passing",
+    "description": "Client for Object Passing",
     "keywords": [
         "object passing",
         "client"
