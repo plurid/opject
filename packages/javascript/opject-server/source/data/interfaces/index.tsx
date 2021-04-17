@@ -21,6 +21,7 @@ export type ServerRequestRegisterBody = {
     token: string;
     id: string;
     data: string;
+    dependencies?: string[],
 }
 
 export type ServerRequestCheckBody = {
@@ -78,6 +79,13 @@ export type RegisterObject = (
     data: string,
 ) => Promise<boolean>;
 
+export type RegisterMetadata = (
+    id: string,
+    data: {
+        dependencies: string[],
+    },
+) => Promise<boolean>;
+
 export type RemoveObject = (
     id: string,
 ) => Promise<boolean>;
@@ -86,6 +94,7 @@ export interface OpjectServerConfiguration {
     verifyToken: VerifyToken;
     getObject?: GetObject;
     registerObject?: RegisterObject;
+    registerMetadata?: RegisterMetadata;
     removeObject?: RemoveObject;
     options?: OpjectServerPartialOptions;
 }

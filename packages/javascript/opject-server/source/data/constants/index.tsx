@@ -37,4 +37,5 @@ export const environment = {
 
 export const BASE_PATH = process.env.OPJECT_SERVER_BASE_PATH || path.join(process.cwd(), '/data');
 export const OBJECTS_PATH = process.env.OPJECT_SERVER_OBJECTS_PATH || path.join(BASE_PATH, '/objects');
+export const METADATA_PATH = process.env.OPJECT_SERVER_METADATA_PATH || path.join(BASE_PATH, '/metadata');
 // #endregion module

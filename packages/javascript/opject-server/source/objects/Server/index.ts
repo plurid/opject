@@ -43,6 +43,7 @@
         ENDPOINT_REMOVE,
 
         OBJECTS_PATH,
+        METADATA_PATH,
     } from '~data/constants';
 
     import {
@@ -61,6 +62,7 @@
         VerifyToken,
         GetObject,
         RegisterObject,
+        RegisterMetadata,
         RemoveObject,
     } from '~data/interfaces';
 
@@ -82,6 +84,7 @@ class OpjectServer {
     private verifyToken: VerifyToken;
     private customGetObject: GetObject | undefined;
     private customRegisterObject: RegisterObject | undefined;
+    private customRegisterMetadata: RegisterMetadata | undefined;
     private customRemoveObject: RemoveObject | undefined;
 
 
@@ -96,6 +99,7 @@ class OpjectServer {
         this.verifyToken = configuration.verifyToken;
         this.customGetObject = configuration.getObject;
         this.customRegisterObject = configuration.registerObject;
+        this.customRegisterMetadata = configuration.registerMetadata;
         this.customRemoveObject = configuration.removeObject;
 
         this.configureServer();
@@ -416,6 +420,7 @@ class OpjectServer {
                 token,
                 id: objectID,
                 data,
+                dependencies,
             } = request.body as ServerRequestRegisterBody;
 
 
@@ -439,16 +444,21 @@ class OpjectServer {
             }
 
 
-            const registered = await this.registerObject(
+            const registeredObject = await this.registerObject(
                 objectID,
                 data,
+            );
+
+            const registeredMetadata = await this.registerMetadata(
+                objectID,
+                dependencies,
             );
 
 
             const contentType = request.header('Content-Type');
 
             const responseData = {
-                registered,
+                registered: registeredObject && registeredMetadata,
             };
 
 
@@ -1015,6 +1025,39 @@ class OpjectServer {
                 id,
             ),
             data,
+        );
+
+        return true;
+    }
+
+    private async registerMetadata(
+        id: string,
+        dependencies: string[] | undefined,
+    ) {
+        if (!dependencies) {
+            return true;
+        }
+
+        const data = {
+            dependencies,
+        };
+
+        if (this.customRegisterMetadata) {
+            return await this.customRegisterMetadata(
+                id,
+                data,
+            );
+        }
+
+        const deon = new Deon();
+        const deonData = deon.stringify(data);
+
+        await fs.writeFile(
+            path.join(
+                METADATA_PATH,
+                id,
+            ),
+            deonData,
         );
 
         return true;
