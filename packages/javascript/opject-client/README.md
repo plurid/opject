@@ -23,6 +23,8 @@
 ### Contents
 
 + [About](#about)
++ [Install](#install)
++ [Usage](#usage)
 + [Packages](#packages)
 + [Codeophon](#codeophon)
 
@@ -48,6 +50,78 @@ The `opject server` can serve any kind of object. However, depending on the pref
 
 + [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-server)
 + `Python`
+
+
+
+## Install
+
+Install using
+
+``` bash
+npm install @plurid/opject-client
+```
+
+or
+
+``` bash
+yarn add @plurid/opject-client
+```
+
+Install the peer dependencies
+
+``` bash
+@plurid/plurid-functions cross-fetch
+```
+
+
+## Usage
+
+The `opject` client requires a server. The server can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
+
+The simplest use-case implies registering an `opject`, retrieving, and running it.
+
+``` typescript
+import OpjectClient from '@plurid/opject-client';
+
+
+const opjectClient = new OpjectClient({
+    url: 'http://server.address',
+    token: 'secret_token_obtained_from_server',
+});
+
+const opjectID = 'some-opject';
+
+const opjectSource = `
+class SomeOpject {
+    internal = 12;
+
+    read() {
+        return this.internal;
+    }
+}
+`;
+
+
+const main = async () => {
+    const registered = await client.register(
+        opjectID,
+        opjectSource,
+    );
+
+    if (!registered) {
+        console.log('Opject not registered');
+        return;
+    }
+
+    const someOpject = await client.request(
+        opjectID,
+    );
+
+    const value = someOpject.read() // 12
+}
+
+main();
+```
 
 
 
