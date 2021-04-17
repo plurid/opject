@@ -131,12 +131,14 @@ class Client {
     public async register(
         objectID: string,
         objectData: string,
+        objectDependencies?: string[],
     ) {
         const data = await this.fetch(
             this.registerURL,
             {
                 id: objectID,
                 data: objectData,
+                dependencies: objectDependencies,
             },
         );
 
