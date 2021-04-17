@@ -76,7 +76,6 @@ The simplest use-case implies registering an `opject`, requiring, and running it
 from opject_client import Client as OpjectClient
 
 
-
 endpoint = 'http://server.address'
 token = 'secret_token_obtained_from_server'
 
