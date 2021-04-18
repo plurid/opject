@@ -26,6 +26,7 @@
     import {
         time,
         uuid,
+        sha as shaFunctions,
     } from '@plurid/plurid-functions';
     // #endregion libraries
 
@@ -68,10 +69,6 @@
         RegisterMetadata,
         RemoveObject,
     } from '~data/interfaces';
-
-    import {
-        computeSourceSha,
-    } from '~utilities/sha';
     // #endregion external
 // #endregion imports
 
@@ -620,7 +617,7 @@ class OpjectServer {
             }
 
 
-            const computedSha = computeSourceSha(objectData);
+            const computedSha = shaFunctions.compute(objectData);
             const checked = sha === computedSha;
 
             const contentType = request.header('Content-Type');
