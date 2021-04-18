@@ -1,3 +1,4 @@
+from multiprocessing import Process
 from flask import Flask
 
 from .endpoints import (
@@ -28,18 +29,28 @@ class Server:
 
         self.app = Flask(__name__)
         self.__handle_endpoints()
-        pass
 
     def start(
         self,
-        port,
+        port: int,
+        debug: bool = False,
     ):
-        self.app.run()
+        self.port = port
+        self.app.run(
+            port=port,
+            debug=debug,
+        )
 
     def close(
         self,
     ):
-        pass
+        if self.port:
+            print(f"Opject Server closed on port {self.port}")
+            server = Process(target=self.app.run)
+            if server:
+                server.terminate()
+        else:
+            print("Opject Server has not been started.")
 
 
     def __handle_endpoints(

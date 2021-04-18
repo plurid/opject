@@ -10,6 +10,7 @@ from opject_server import Server as OpjectServer
 
 #region module
 test_token = '__TESTS__'
+port = 7766
 
 def verify_token(
     token,
@@ -21,5 +22,7 @@ server = OpjectServer(
     verify_token=verify_token
 )
 
-server.start(7766)
+server.start(
+    port=port,
+)
 #endregion module
