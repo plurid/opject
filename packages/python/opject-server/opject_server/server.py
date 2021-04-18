@@ -56,14 +56,23 @@ class Server:
     def __handle_endpoints(
         self,
     ):
-        EndpointRequire = endpoint_require(self.custom_get_object)
+        customs = {
+            'verify_token': self.custom_verify_token,
+            'get_object': self.custom_get_object,
+            'get_metadata': self.custom_get_metadata,
+            'register_object': self.custom_register_object,
+            'register_metadata': self.custom_register_metadata,
+            'remove_object': self.custom_remove_object,
+        }
+
+        EndpointRequire = endpoint_require(customs)
         EndpointRequire.register(self.app)
 
-        EndpointRegister = endpoint_register(self.custom_get_object)
+        EndpointRegister = endpoint_register(customs)
         EndpointRegister.register(self.app)
 
-        EndpointCheck = endpoint_check(self.custom_get_object)
+        EndpointCheck = endpoint_check(customs)
         EndpointCheck.register(self.app)
 
-        EndpointRemove = endpoint_remove(self.custom_get_object)
+        EndpointRemove = endpoint_remove(customs)
         EndpointRemove.register(self.app)

@@ -4,7 +4,7 @@ from flask_classful import FlaskView
 
 
 def endpoint_require(
-    custom_get_object,
+    customs,
 ):
     class EndpointRequire(FlaskView):
         route_base = '/require'
@@ -20,7 +20,7 @@ def endpoint_require(
 
 
 def endpoint_register(
-    custom_get_object,
+    customs,
 ):
     class EndpointRegister(FlaskView):
         route_base = '/register'
@@ -36,7 +36,7 @@ def endpoint_register(
 
 
 def endpoint_check(
-    custom_get_object,
+    customs,
 ):
     class EndpointCheck(FlaskView):
         route_base = '/check'
@@ -52,7 +52,7 @@ def endpoint_check(
 
 
 def endpoint_remove(
-    custom_get_object,
+    customs,
 ):
     class EndpointRemove(FlaskView):
         route_base = '/remove'
