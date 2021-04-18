@@ -1,19 +1,36 @@
+import os
 from flask import request
 from flask_classful import FlaskView
+
+from .utilities import (
+    check_token,
+)
 
 
 
 def endpoint_require(
-    customs,
+    methods,
 ):
     class EndpointRequire(FlaskView):
         route_base = '/require'
 
         def post(self):
             request_data = request.get_json()
-            object_id = request_data['id']
+            if not request_data:
+                return {}
 
-            custom_get_object = customs['get_object']
+            object_id = request_data.get('id', None)
+            if not object_id:
+                return {}
+
+            valid_token = check_token(
+                request.headers.get('Authorization'),
+                methods['verify_token'],
+            )
+            if not valid_token:
+                return {}
+
+            custom_get_object = methods['get_object']
             if custom_get_object:
                 response = custom_get_object(object_id)
                 return response
@@ -27,16 +44,40 @@ def endpoint_require(
 
 
 def endpoint_register(
-    customs,
+    methods,
 ):
     class EndpointRegister(FlaskView):
         route_base = '/register'
 
         def post(self):
             request_data = request.get_json()
-            object_id = request_data['id']
-            object_data = request_data['data']
-            object_dependencies = request_data['dependencies']
+            if not request_data:
+                return {}
+
+            object_id = request_data.get('id', None)
+            object_data = request_data.get('data', None)
+            object_dependencies = request_data.get('dependencies', None)
+            if (
+                not object_id
+                or not object_data
+            ):
+                return {}
+
+            valid_token = check_token(
+                request.headers.get('Authorization'),
+                methods['verify_token'],
+            )
+            if not valid_token:
+                return {}
+
+            object_path = os.path.join(
+                os.getcwd(),
+                '/data/objects/',
+                object_id,
+            )
+            object_file = open(object_path, 'w')
+            object_file.write(object_data)
+            object_file.close()
 
             response = {
                 'registered': False,
@@ -47,15 +88,27 @@ def endpoint_register(
 
 
 def endpoint_check(
-    customs,
+    methods,
 ):
     class EndpointCheck(FlaskView):
         route_base = '/check'
 
         def post(self):
             request_data = request.get_json()
-            object_id = request_data['id']
-            object_sha = request_data['sha']
+            if not request_data:
+                return {}
+
+            object_id = request_data.get('id', None)
+            object_sha = request_data.get('sha', None)
+            if not object_id or not object_sha:
+                return {}
+
+            valid_token = check_token(
+                request.headers.get('Authorization'),
+                methods['verify_token'],
+            )
+            if not valid_token:
+                return {}
 
             response = {
                 'checked': False,
@@ -66,14 +119,26 @@ def endpoint_check(
 
 
 def endpoint_remove(
-    customs,
+    methods,
 ):
     class EndpointRemove(FlaskView):
         route_base = '/remove'
 
         def post(self):
             request_data = request.get_json()
-            object_id = request_data['id']
+            if not request_data:
+                return {}
+
+            object_id = request_data.get('id', None)
+            if not object_id:
+                return {}
+
+            valid_token = check_token(
+                request.headers.get('Authorization'),
+                methods['verify_token'],
+            )
+            if not valid_token:
+                return {}
 
             response = {
                 'removed': False,

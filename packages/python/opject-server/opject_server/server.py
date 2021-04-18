@@ -13,14 +13,14 @@ from .endpoints import (
 class Server:
     def __init__(
         self,
-        verify_token = None,
+        verify_token,
         get_object = None,
         get_metadata = None,
         register_object = None,
         register_metadata = None,
         remove_object = None,
     ):
-        self.custom_verify_token = verify_token
+        self.verify_token = verify_token
         self.custom_get_object = get_object
         self.custom_get_metadata = get_metadata
         self.custom_register_object = register_object
@@ -56,8 +56,8 @@ class Server:
     def __handle_endpoints(
         self,
     ):
-        customs = {
-            'verify_token': self.custom_verify_token,
+        methods = {
+            'verify_token': self.verify_token,
             'get_object': self.custom_get_object,
             'get_metadata': self.custom_get_metadata,
             'register_object': self.custom_register_object,
@@ -65,14 +65,14 @@ class Server:
             'remove_object': self.custom_remove_object,
         }
 
-        EndpointRequire = endpoint_require(customs)
+        EndpointRequire = endpoint_require(methods)
         EndpointRequire.register(self.app)
 
-        EndpointRegister = endpoint_register(customs)
+        EndpointRegister = endpoint_register(methods)
         EndpointRegister.register(self.app)
 
-        EndpointCheck = endpoint_check(customs)
+        EndpointCheck = endpoint_check(methods)
         EndpointCheck.register(self.app)
 
-        EndpointRemove = endpoint_remove(customs)
+        EndpointRemove = endpoint_remove(methods)
         EndpointRemove.register(self.app)
