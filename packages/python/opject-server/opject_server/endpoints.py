@@ -148,7 +148,9 @@ def endpoint_check(
             object_file = codecs.open(object_path, 'r', 'utf-8')
             object_read_data = object_file.read()
 
-            object_hash = hashlib.sha256(object_read_data)
+            object_hash = hashlib.sha256(
+                str.encode(object_read_data),
+            )
             object_computed_sha = object_hash.hexdigest()
 
             if object_sha != object_computed_sha:
