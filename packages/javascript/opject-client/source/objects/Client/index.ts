@@ -161,7 +161,12 @@ class Client {
         objectID: string,
         objectData: string,
         objectDependencies?: string[],
+        trim: boolean = true,
     ) {
+        if (trim) {
+            objectData = objectData.trim() + '\n';
+        }
+
         const data = await this.fetch(
             this.registerURL,
             {
