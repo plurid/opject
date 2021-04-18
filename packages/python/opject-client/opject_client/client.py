@@ -1,5 +1,6 @@
 import re
 import requests
+import hashlib
 
 from typing import (
     Any,
@@ -30,6 +31,7 @@ class Client:
         self,
         id: str,
         name: Optional[str] = None,
+        skip_check: bool = False,
     ) -> Any:
         object_name = name
 
@@ -44,10 +46,34 @@ class Client:
         )
         response_data = response.json()
 
+        object_data = response_data.get('object', None)
+        if not object_data:
+            raise Exception('Opject: no object data.')
+
         if not object_name:
-            match = re.search("^\s*class (\w+):", response_data["object"])
+            match = re.search("^\s*class (\w+):", object_data)
             if match:
                 object_name = match[1]
+
+        if not skip_check:
+            object_hash = hashlib.sha256(
+                str.encode(object_data),
+            )
+            object_computed_sha = object_hash.hexdigest()
+
+            check_response = requests.post(
+                self.check_url,
+                headers = {
+                    'Authorization': 'Bearer %s' % self.token,
+                },
+                json = {
+                    'id': id,
+                    'sha': object_computed_sha,
+                },
+            )
+            check_data = check_response.json()
+            if not check_data["checked"]:
+                raise Exception('Opject: object data did not pass check.')
 
         exec(response_data["object"])
         obj = eval('%s()' % object_name)
