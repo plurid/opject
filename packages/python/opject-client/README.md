@@ -115,7 +115,7 @@ value = someOpject.read() # 12
 ## Packages
 
 <a target="_blank" href="https://www.npmjs.com/package/@plurid/opject-client">
-    <img src="https://img.shields.io/npm/v/@plurid/opject.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/npm/v/@plurid/opject-client.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
 </a>
 
 [@plurid/opject-client-javascript][opject-client-javascript] • `JavaScript` opject client
@@ -124,7 +124,7 @@ value = someOpject.read() # 12
 
 
 <a target="_blank" href="https://www.npmjs.com/package/@plurid/opject-server">
-    <img src="https://img.shields.io/npm/v/@plurid/opject.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
+    <img src="https://img.shields.io/npm/v/@plurid/opject-server.svg?logo=npm&colorB=1380C3&style=for-the-badge" alt="Version">
 </a>
 
 [@plurid/opject-server-javascript][opject-server-javascript] • `JavaScript` opject server
