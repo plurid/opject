@@ -72,10 +72,11 @@ def endpoint_register(
 
             object_path = os.path.join(
                 os.getcwd(),
-                '/data/objects/',
+                'data/objects',
                 object_id,
             )
-            object_file = open(object_path, 'w')
+            os.makedirs(os.path.dirname(object_path), exist_ok=True)
+            object_file = open(object_path, 'w+')
             object_file.write(object_data)
             object_file.close()
 
