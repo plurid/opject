@@ -1,5 +1,7 @@
 import os
 import codecs
+import hashlib
+
 from flask import request
 from flask_classful import FlaskView
 
@@ -146,7 +148,14 @@ def endpoint_check(
             object_file = codecs.open(object_path, 'r', 'utf-8')
             object_read_data = object_file.read()
 
-            # compute sha and check
+            object_hash = hashlib.sha256(object_read_data)
+            object_computed_sha = object_hash.hexdigest()
+
+            if object_sha != object_computed_sha:
+                response = {
+                    'checked': False,
+                }
+                return response
 
             response = {
                 'checked': True,
