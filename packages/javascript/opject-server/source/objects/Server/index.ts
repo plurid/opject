@@ -617,7 +617,7 @@ class OpjectServer {
             }
 
 
-            const computedSha = shaFunctions.compute(objectData);
+            const computedSha = await shaFunctions.compute(objectData);
             const checked = sha === computedSha;
 
             const contentType = request.header('Content-Type');

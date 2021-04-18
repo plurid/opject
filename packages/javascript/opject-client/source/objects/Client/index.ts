@@ -100,7 +100,7 @@ class Client {
 
 
         if (!skipCheckValue) {
-            const sourceSha = shaFunctions.compute(object);
+            const sourceSha = await shaFunctions.compute(object);
             const checkData = await this.fetch(
                 this.checkURL,
                 {

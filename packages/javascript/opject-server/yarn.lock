@@ -536,10 +536,10 @@
     encoding "^0.1.13"
     sync-fetch "^0.3.0"
 
-"@plurid/plurid-functions@^0.0.0-2":
-  version "0.0.0-2"
-  resolved "https://npm.plurid.cloud/@plurid%2fplurid-functions/-/plurid-functions-0.0.0-2.tgz#8c50466dcc3f026199b28a6f0a8669f627c4e9c8"
-  integrity sha512-YHhSpHlzZKhR8qaKUI9TS74N/eZ8xZ0nRTfe/6NHf5kPDfi8N3RwAKrAbHqvh34uJLxHDJPtCDHXEst9nwCPCw==
+"@plurid/plurid-functions@^0.0.0-3":
+  version "0.0.0-3"
+  resolved "https://npm.plurid.cloud/@plurid%2fplurid-functions/-/plurid-functions-0.0.0-3.tgz#14af8153ea4d31340d2f6bd445368a6fd026544e"
+  integrity sha512-PnayDviTq4jcsUhNFlHxRE1PZ/x80zMbp6u2UgmEdAl3Ivyt3QXu4iB1M2rxBP0/5cCAiXAny/mqOEuk1SmLLw==
 
 "@rollup/plugin-commonjs@^18.0.0":
   version "18.0.0"
