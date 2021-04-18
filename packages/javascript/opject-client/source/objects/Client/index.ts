@@ -5,6 +5,10 @@
     import {
         execSync,
     } from 'child_process';
+
+    import {
+        sha as shaFunctions,
+    } from '@plurid/plurid-functions';
     // #endregion libraries
 
 
@@ -25,10 +29,6 @@
     import {
         resolveCaching,
     } from '~utilities/caching';
-
-    import {
-        computeSourceSha,
-    } from '~utilities/sha';
 
     import fetcher, {
         Fetch,
@@ -100,7 +100,7 @@ class Client {
 
 
         if (!skipCheckValue) {
-            const sourceSha = computeSourceSha(object);
+            const sourceSha = shaFunctions.compute(object);
             const checkData = await this.fetch(
                 this.checkURL,
                 {
