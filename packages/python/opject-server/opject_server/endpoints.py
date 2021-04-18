@@ -1,20 +1,28 @@
+from flask import request
+from flask_classful import FlaskView
+
+
+
 def endpoint_require(
     custom_get_object,
 ):
-    return class EndpointRequire(FlaskView):
+    class EndpointRequire(FlaskView):
         route_base = '/require'
 
         def post(self):
             request_data = request.get_json()
             response = {
-                'object': False,
+                'object': '',
             }
             return response
+
+    return EndpointRequire
+
 
 def endpoint_register(
     custom_get_object,
 ):
-    return class EndpointRegister(FlaskView):
+    class EndpointRegister(FlaskView):
         route_base = '/register'
 
         def post(self):
@@ -24,10 +32,13 @@ def endpoint_register(
             }
             return response
 
+    return EndpointRegister
+
+
 def endpoint_check(
     custom_get_object,
 ):
-    return class EndpointCheck(FlaskView):
+    class EndpointCheck(FlaskView):
         route_base = '/check'
 
         def post(self):
@@ -37,10 +48,13 @@ def endpoint_check(
             }
             return response
 
+    return EndpointCheck
+
+
 def endpoint_remove(
     custom_get_object,
 ):
-    return class EndpointRemove(FlaskView):
+    class EndpointRemove(FlaskView):
         route_base = '/remove'
 
         def post(self):
@@ -49,3 +63,5 @@ def endpoint_remove(
                 'removed': False,
             }
             return response
+
+    return EndpointRemove

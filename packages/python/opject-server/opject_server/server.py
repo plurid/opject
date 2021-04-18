@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify
-from flask_classful import FlaskView
+from flask import Flask
 
 from .endpoints import (
     endpoint_require,
@@ -13,12 +12,12 @@ from .endpoints import (
 class Server:
     def __init__(
         self,
-        verify_token = None
-        get_object = None
-        get_metadata = None
-        register_object = None
-        register_metadata = None
-        remove_object = None
+        verify_token = None,
+        get_object = None,
+        get_metadata = None,
+        register_object = None,
+        register_metadata = None,
+        remove_object = None,
     ):
         self.custom_verify_token = verify_token
         self.custom_get_object = get_object
@@ -35,7 +34,7 @@ class Server:
         self,
         port,
     ):
-        app.run()
+        self.app.run()
 
     def close(
         self,
