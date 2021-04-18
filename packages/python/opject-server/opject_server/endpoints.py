@@ -1,7 +1,11 @@
 import os
+import codecs
 from flask import request
 from flask_classful import FlaskView
 
+from .constants import (
+    objects_path,
+)
 from .utilities import (
     check_token,
 )
@@ -35,8 +39,15 @@ def endpoint_require(
                 response = custom_get_object(object_id)
                 return response
 
+            object_path = os.path.join(
+                objects_path,
+                object_id,
+            )
+            object_file = codecs.open(object_path, 'r', 'utf-8')
+            object_read_data = object_file.read()
+
             response = {
-                'object': '',
+                'object': object_read_data,
             }
             return response
 
@@ -52,7 +63,10 @@ def endpoint_register(
         def post(self):
             request_data = request.get_json()
             if not request_data:
-                return {}
+                response = {
+                    'registered': False,
+                }
+                return response
 
             object_id = request_data.get('id', None)
             object_data = request_data.get('data', None)
@@ -61,18 +75,23 @@ def endpoint_register(
                 not object_id
                 or not object_data
             ):
-                return {}
+                response = {
+                    'registered': False,
+                }
+                return response
 
             valid_token = check_token(
                 request.headers.get('Authorization'),
                 methods['verify_token'],
             )
             if not valid_token:
-                return {}
+                response = {
+                    'registered': False,
+                }
+                return response
 
             object_path = os.path.join(
-                os.getcwd(),
-                'data/objects',
+                objects_path,
                 object_id,
             )
             os.makedirs(os.path.dirname(object_path), exist_ok=True)
@@ -81,7 +100,7 @@ def endpoint_register(
             object_file.close()
 
             response = {
-                'registered': False,
+                'registered': True,
             }
             return response
 
@@ -97,22 +116,40 @@ def endpoint_check(
         def post(self):
             request_data = request.get_json()
             if not request_data:
-                return {}
+                response = {
+                    'checked': False,
+                }
+                return response
 
             object_id = request_data.get('id', None)
             object_sha = request_data.get('sha', None)
             if not object_id or not object_sha:
-                return {}
+                response = {
+                    'checked': False,
+                }
+                return response
 
             valid_token = check_token(
                 request.headers.get('Authorization'),
                 methods['verify_token'],
             )
             if not valid_token:
-                return {}
+                response = {
+                    'checked': False,
+                }
+                return response
+
+            object_path = os.path.join(
+                objects_path,
+                object_id,
+            )
+            object_file = codecs.open(object_path, 'r', 'utf-8')
+            object_read_data = object_file.read()
+
+            # compute sha and check
 
             response = {
-                'checked': False,
+                'checked': True,
             }
             return response
 
@@ -128,21 +165,36 @@ def endpoint_remove(
         def post(self):
             request_data = request.get_json()
             if not request_data:
-                return {}
+                response = {
+                    'removed': False,
+                }
+                return response
 
             object_id = request_data.get('id', None)
             if not object_id:
-                return {}
+                response = {
+                    'removed': False,
+                }
+                return response
 
             valid_token = check_token(
                 request.headers.get('Authorization'),
                 methods['verify_token'],
             )
             if not valid_token:
-                return {}
+                response = {
+                    'removed': False,
+                }
+                return response
+
+            object_path = os.path.join(
+                objects_path,
+                object_id,
+            )
+            os.remove(object_path)
 
             response = {
-                'removed': False,
+                'removed': True,
             }
             return response
 
