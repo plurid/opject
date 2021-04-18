@@ -11,6 +11,13 @@ def endpoint_require(
 
         def post(self):
             request_data = request.get_json()
+            object_id = request_data['id']
+
+            custom_get_object = customs['get_object']
+            if custom_get_object:
+                response = custom_get_object(object_id)
+                return response
+
             response = {
                 'object': '',
             }
@@ -27,6 +34,10 @@ def endpoint_register(
 
         def post(self):
             request_data = request.get_json()
+            object_id = request_data['id']
+            object_data = request_data['data']
+            object_dependencies = request_data['dependencies']
+
             response = {
                 'registered': False,
             }
@@ -43,6 +54,9 @@ def endpoint_check(
 
         def post(self):
             request_data = request.get_json()
+            object_id = request_data['id']
+            object_sha = request_data['sha']
+
             response = {
                 'checked': False,
             }
@@ -59,6 +73,8 @@ def endpoint_remove(
 
         def post(self):
             request_data = request.get_json()
+            object_id = request_data['id']
+
             response = {
                 'removed': False,
             }
