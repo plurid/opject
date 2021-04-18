@@ -32,7 +32,7 @@ class Server:
 
     def start(
         self,
-        port: int,
+        port: int = 7766,
         debug: bool = False,
     ):
         self.port = port
