@@ -23,6 +23,8 @@
 ### Contents
 
 + [About](#about)
++ [Install](#install)
++ [Usage](#usage)
 + [Packages](#packages)
 + [Codeophon](#codeophon)
 
@@ -50,6 +52,83 @@ The `opject server` can serve any kind of object. However, depending on the pref
 + [`Python`](https://github.com/plurid/opject/tree/master/packages/python/opject-server)
 
 The [`opject registry`](https://github.com/plurid/opject/tree/master/packages/registry) grants extended functionality through a web interface. The registry can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
+
+
+
+## Install
+
+Install by running
+
+``` bash
+pip install opject-server
+```
+
+
+
+## Usage
+
+A simple `opject server` will only require passing a `verify_token` function and `start`ing the server.
+
+
+``` python
+from opject_server import Server as OpjectServer
+
+
+test_token = '__TESTS__'
+port = 7766
+
+def verify_token(
+    token,
+):
+    return token == test_token
+
+
+server = OpjectServer(
+    verify_token=verify_token
+)
+
+server.start(
+    port=port,
+)
+```
+
+The `opject` server will use the local filesystem for storing data.
+
+Custom functions can be passed to the `opject` server to implement any kind of logic handling following the interfaces
+
+``` python
+def verify_token(
+    token: str,
+):
+    pass
+
+def get_object(
+    id: str,
+):
+    pass
+
+def get_metadata(
+    id: str,
+):
+    pass
+
+def register_object(
+    id: str,
+    data: str,
+):
+    pass
+
+def register_metadata(
+    id: str,
+    data: dict, # { dependencies: str }
+):
+    pass
+
+def remove_object(
+    id: str,
+):
+    pass
+```
 
 
 
