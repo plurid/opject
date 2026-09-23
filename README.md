@@ -24,6 +24,7 @@
 
 + [About](#about)
 + [Packages](#packages)
++ [Development](#development)
 + [Codeophon](#codeophon)
 
 
@@ -49,7 +50,7 @@ The `opject server` can serve any kind of object. However, depending on the pref
 + [`NodeJS`](https://github.com/plurid/opject/tree/master/packages/javascript/opject-server)
 + [`Python`](https://github.com/plurid/opject/tree/master/packages/python/opject-server)
 
-The [`opject registry`](https://github.com/plurid/opject/tree/master/packages/registry) grants extended functionality through a web interface. The registry can be self-hosted or [cloud-hosted](https://opject.plurid.cloud).
+The [`opject registry`](packages/registry) is an inactive scaffold: this repository does not contain its application source.
 
 
 
@@ -92,6 +93,23 @@ The [`opject registry`](https://github.com/plurid/opject/tree/master/packages/re
 [opject-server-python]: https://github.com/plurid/opject/tree/master/packages/python/opject-server
 
 
+
+## Development
+
+The active packages are the JavaScript and Python clients and servers. JavaScript uses a pnpm workspace with one lockfile; Python uses a uv workspace with one lockfile.
+
+Use Node 24 (`.nvmrc`), pnpm 11.3.0, and uv 0.11.3 or newer. Python defaults to 3.14 (`.python-version`); the packages support Python 3.11 and newer.
+
+```sh
+npm install --global pnpm@11.3.0
+pnpm install --frozen-lockfile
+uv sync --locked --all-packages
+pnpm check:all
+```
+
+`pnpm check` runs JavaScript linting, type checks, protocol tests, builds, and isolated package-consumer checks. `pnpm python:check` runs Python linting and tests. `pnpm python:build` builds wheels and source archives.
+
+See [the development guide](docs/development.md) for watch mode, package commands, CI, release checks, and migration notes.
 
 ## [Codeophon](https://github.com/ly3xqhl8g9/codeophon)
 

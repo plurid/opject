@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "opject-client"
+version = "0.0.0"
+description = "Client for object passing"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "LicenseRef-delicense"
+license-files = ["LICENSE", "LICENSE.deon"]
+authors = [{ name = "ly3xqhl8g9", email = "ly3xqhl8g9@plurid.com" }]
+dependencies = ["requests>=2.32.4,<3"]
+
+[project.urls]
+Repository = "https://github.com/plurid/opject"
+Issues = "https://github.com/plurid/opject/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["opject_client"]

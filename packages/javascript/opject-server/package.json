@@ -10,7 +10,8 @@
     "license": "SEE LICENSE IN LICENSE",
     "repository": {
         "type": "git",
-        "url": "https://github.com/plurid/opject"
+        "url": "git+https://github.com/plurid/opject.git",
+        "directory": "packages/javascript/opject-server"
     },
     "bugs": {
         "email": "source@plurid.com",
@@ -24,54 +25,39 @@
     "files": [
         "distribution"
     ],
-    "main": "distribution/index.js",
-    "module": "distribution/index.es.js",
-    "typings": "distribution/index.d.ts",
+    "main": "./distribution/index.cjs",
+    "module": "./distribution/index.mjs",
     "engines": {
-        "node": ">=12",
-        "npm": ">=6"
+        "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
     },
     "scripts": {
-        "clean": "rm -rf ./distribution",
-        "clean.tests": "find ./distribution -type d -name \"__tests__\" -prune -exec rm -rf {} +",
-        "clean.performance": "find ./distribution -type d -name \"__performance__\" -prune -exec rm -rf {} +",
-        "test": "jest ./source --config ./configurations/jest.config.js --rootDir ./",
-        "lint": "eslint -c ./configurations/.eslintrc.js ./source --ext .ts,.tsx",
-        "start": "yarn clean && rollup -c ./scripts/rollup.config.js -w --environment ENV_MODE:local",
-        "build.local": "yarn clean && rollup -c ./scripts/rollup.config.js --environment ENV_MODE:local",
-        "build.development": "yarn clean && rollup -c ./scripts/rollup.config.js --environment ENV_MODE:development",
-        "build.production": "yarn clean && rollup -c ./scripts/rollup.config.js --environment ENV_MODE:production",
-        "build": "yarn lint && yarn test && yarn build.production && yarn clean.tests && yarn clean.performance",
-        "prepublishOnly": "yarn build"
+        "clean": "node -e \"require('node:fs').rmSync('distribution', { recursive: true, force: true })\"",
+        "dev": "tsdown --config ../../../tsdown.config.ts --watch",
+        "build": "tsdown --config ../../../tsdown.config.ts",
+        "typecheck": "tsc --project tsconfig.json",
+        "check:package": "publint --strict",
+        "prepack": "pnpm build",
+        "prepublishOnly": "pnpm --dir ../../.. check"
     },
-    "devDependencies": {
-        "@plurid/deon": "^0.0.0-10",
-        "@plurid/plurid-functions": "^0.0.0-31",
-        "@rollup/plugin-commonjs": "^24.1.0",
-        "@rollup/plugin-terser": "^0.4.1",
-        "@types/body-parser": "^1.19.2",
-        "@types/express": "^4.17.17",
-        "@types/jest": "^29.5.1",
-        "@types/node": "^18.16.1",
-        "@types/react": "^18.2.0",
-        "@types/rollup-plugin-sourcemaps": "^0.4.2",
-        "@typescript-eslint/eslint-plugin": "^5.59.1",
-        "@typescript-eslint/parser": "^5.59.1",
-        "@zerollup/ts-transform-paths": "^1.7.18",
-        "body-parser": "^1.20.2",
-        "coveralls": "^3.1.1",
-        "eslint": "^8.39.0",
-        "express": "^4.18.2",
-        "jest": "^29.5.0",
-        "jest-config": "^29.5.0",
-        "react": "^18.2.0",
-        "rollup": "^3.21.0",
-        "rollup-plugin-sourcemaps": "^0.6.3",
-        "rollup-plugin-typescript2": "^0.34.1",
-        "ts-jest": "^29.1.0",
-        "ts-node": "^10.9.1",
-        "ttypescript": "^1.5.15",
-        "typescript": "^5.0.4",
-        "typescript-transform-paths": "^3.4.6"
-    }
+    "type": "module",
+    "types": "./distribution/index.d.mts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./distribution/index.d.mts",
+                "default": "./distribution/index.mjs"
+            },
+            "require": {
+                "types": "./distribution/index.d.cts",
+                "default": "./distribution/index.cjs"
+            }
+        },
+        "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@plurid/deon": "0.0.0-10",
+        "@types/express": "^5.0.6",
+        "express": "^5.2.1"
+    },
+    "sideEffects": false
 }

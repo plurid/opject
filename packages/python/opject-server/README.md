@@ -176,3 +176,10 @@ def remove_object(
 
 + licensing: [delicense](https://github.com/ly3xqhl8g9/delicense)
 + versioning: [αver](https://github.com/ly3xqhl8g9/alpha-versioning)
+
+
+## Development
+
+Requires Python 3.11 or newer. Runtime dependencies are declared in `pyproject.toml` and installed automatically. The repository uses uv for locked development environments, pytest for tests, and Hatchling for wheels and source archives.
+
+See [the development guide](../../../docs/development.md) for commands and release checks.

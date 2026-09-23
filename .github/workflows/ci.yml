@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  javascript:
+    name: JavaScript / Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24, 26]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+
+  python:
+    name: Python / ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: '0.11.3'
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --locked --all-packages
+      - run: uv run --locked --all-packages ruff check packages/python
+      - run: uv run --locked --all-packages pytest
+      - run: uv build --all-packages --no-sources
+      - run: uv run --locked twine check dist/*
+      - name: Verify installed wheels
+        run: |
+          uv venv .venv-wheels
+          uv pip install --python .venv-wheels/bin/python dist/*.whl
+          uv pip check --python .venv-wheels/bin/python
+          .venv-wheels/bin/python -I -c "from opject_client import Client; from opject_server import Server; assert callable(Client); assert callable(Server)"

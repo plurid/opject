@@ -1,33 +1,24 @@
 // #region imports
     // #region libraries
-    import path from 'path';
+    import path from 'node:path';
 
     import {
         promises as fs,
-    } from 'fs';
+    } from 'node:fs';
 
     import {
         Server,
-    } from 'http';
+    } from 'node:http';
 
     import express, {
         Express,
     } from 'express';
 
-    import {
-        raw as bodyParserRaw,
-        json as bodyParserJSON,
-    } from 'body-parser';
-
-    import Deon, {
+    import DeonLibrary, {
         DEON_MEDIA_TYPE,
     } from '@plurid/deon';
 
-    import {
-        time,
-        uuid,
-        sha as shaFunctions,
-    } from '@plurid/plurid-functions';
+    import { createHash, randomUUID } from 'node:crypto';
     // #endregion libraries
 
 
@@ -45,7 +36,7 @@
 
         OBJECTS_PATH,
         METADATA_PATH,
-    } from '~data/constants';
+    } from '../../data/constants';
 
     import {
         ServerRequest,
@@ -68,13 +59,39 @@
         RegisterObject,
         RegisterMetadata,
         RemoveObject,
-    } from '~data/interfaces';
+    } from '../../data/interfaces';
     // #endregion external
 // #endregion imports
 
 
 
 // #region module
+// The legacy DEON package exposes its constructor under `default` in CommonJS.
+// Normalize that shape so native ESM and CommonJS consumers use the same parser.
+const Deon = (DeonLibrary as typeof DeonLibrary & { default?: typeof DeonLibrary }).default ?? DeonLibrary;
+
+/**
+ * Resolves an object ID inside a storage directory.
+ * IDs escaping the directory (`../`, absolute paths) resolve to `undefined`.
+ */
+const resolveStoragePath = (
+    directory: string,
+    id: string,
+) => {
+    if (typeof id !== 'string') {
+        return;
+    }
+
+    const base = path.resolve(directory);
+    const resolved = path.resolve(base, id);
+
+    if (!resolved.startsWith(base + path.sep)) {
+        return;
+    }
+
+    return resolved;
+}
+
 class OpjectServer {
     private options: OpjectServerOptions;
     private serverApplication: Express;
@@ -108,10 +125,6 @@ class OpjectServer {
 
         this.handleEndpoints();
 
-        process.addListener('SIGINT', () => {
-            this.stop();
-            process.exit(0);
-        });
     }
 
 
@@ -124,7 +137,7 @@ class OpjectServer {
 
         if (this.debugAllows('info')) {
             console.info(
-                `\n\t[${time.stamp()}] ${this.options.serverName} Started on Port ${port}: ${serverlink}\n`,
+                `\n\t[${new Date().toISOString()}] ${this.options.serverName} Started on Port ${port}: ${serverlink}\n`,
             );
         }
 
@@ -137,7 +150,7 @@ class OpjectServer {
         if (this.server) {
             if (this.debugAllows('info')) {
                 console.info(
-                    `\n\t[${time.stamp()}] ${this.options.serverName} Stopped on Port ${this.port}\n`,
+                    `\n\t[${new Date().toISOString()}] ${this.options.serverName} Stopped on Port ${this.port}\n`,
                 );
             }
 
@@ -145,7 +158,7 @@ class OpjectServer {
         } else {
             if (this.debugAllows('info')) {
                 console.info(
-                    `\n\t[${time.stamp()}] ${this.options.serverName} Could not be Stopped on Port ${this.port}\n`,
+                    `\n\t[${new Date().toISOString()}] ${this.options.serverName} Could not be Stopped on Port ${this.port}\n`,
                 );
             }
         }
@@ -215,12 +228,12 @@ class OpjectServer {
         request: express.Request,
         response: express.Response,
     ) {
-        const requestID = (request as ServerRequest).requestID || uuid.generate();
+        const requestID = (request as ServerRequest).requestID || randomUUID();
 
         try {
             if (this.debugAllows('info')) {
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
                 );
             }
 
@@ -232,7 +245,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -250,7 +263,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -276,7 +289,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -297,7 +310,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (404 Not Found) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (404 Not Found) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -308,8 +321,6 @@ class OpjectServer {
             }
 
 
-            const contentType = request.header('Content-Type');
-
             const responseData = {
                 object: objectData,
                 dependencies: objectMetadata?.dependencies,
@@ -317,13 +328,13 @@ class OpjectServer {
 
 
             if (
-                contentType !== DEON_MEDIA_TYPE
+                !request.is(DEON_MEDIA_TYPE)
             ) {
                 if (this.debugAllows('info')) {
                     const requestTime = this.computeRequestTime(request);
 
                     console.info(
-                        `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -344,7 +355,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                 );
             }
 
@@ -356,7 +367,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.error(
-                    `[${time.stamp()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
                     error,
                 );
             }
@@ -372,12 +383,12 @@ class OpjectServer {
         request: express.Request,
         response: express.Response,
     ) {
-        const requestID = (request as ServerRequest).requestID || uuid.generate();
+        const requestID = (request as ServerRequest).requestID || randomUUID();
 
         try {
             if (this.debugAllows('info')) {
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
                 );
             }
 
@@ -389,7 +400,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -408,7 +419,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -436,7 +447,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -452,13 +463,11 @@ class OpjectServer {
                 data,
             );
 
-            const registeredMetadata = await this.registerMetadata(
+            const registeredMetadata = registeredObject && await this.registerMetadata(
                 objectID,
                 dependencies,
             );
 
-
-            const contentType = request.header('Content-Type');
 
             const responseData = {
                 registered: registeredObject && registeredMetadata,
@@ -466,13 +475,13 @@ class OpjectServer {
 
 
             if (
-                contentType !== DEON_MEDIA_TYPE
+                !request.is(DEON_MEDIA_TYPE)
             ) {
                 if (this.debugAllows('info')) {
                     const requestTime = this.computeRequestTime(request);
 
                     console.info(
-                        `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -493,7 +502,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                 );
             }
 
@@ -505,7 +514,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.error(
-                    `[${time.stamp()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
                     error,
                 );
             }
@@ -521,12 +530,12 @@ class OpjectServer {
         request: express.Request,
         response: express.Response,
     ) {
-        const requestID = (request as ServerRequest).requestID || uuid.generate();
+        const requestID = (request as ServerRequest).requestID || randomUUID();
 
         try {
             if (this.debugAllows('info')) {
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
                 );
             }
 
@@ -538,7 +547,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -557,7 +566,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -584,7 +593,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -606,7 +615,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -617,10 +626,8 @@ class OpjectServer {
             }
 
 
-            const computedSha = await shaFunctions.compute(objectData);
+            const computedSha = createHash('sha256').update(objectData).digest('hex');
             const checked = sha === computedSha;
-
-            const contentType = request.header('Content-Type');
 
             const responseData = {
                 checked,
@@ -628,13 +635,13 @@ class OpjectServer {
 
 
             if (
-                contentType !== DEON_MEDIA_TYPE
+                !request.is(DEON_MEDIA_TYPE)
             ) {
                 if (this.debugAllows('info')) {
                     const requestTime = this.computeRequestTime(request);
 
                     console.info(
-                        `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -655,7 +662,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                 );
             }
 
@@ -667,7 +674,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.error(
-                    `[${time.stamp()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
                     error,
                 );
             }
@@ -683,12 +690,12 @@ class OpjectServer {
         request: express.Request,
         response: express.Response,
     ) {
-        const requestID = (request as ServerRequest).requestID || uuid.generate();
+        const requestID = (request as ServerRequest).requestID || randomUUID();
 
         try {
             if (this.debugAllows('info')) {
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (000 Start) Handling POST ${request.path}`,
                 );
             }
 
@@ -700,7 +707,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (401 Unauthorized) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -718,7 +725,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (400 Bad Request) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -744,7 +751,7 @@ class OpjectServer {
                     const requestTime = this.computeRequestTime(request);
 
                     console.warn(
-                        `[${time.stamp()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (403 Forbidden) Could not handle POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -760,21 +767,19 @@ class OpjectServer {
             );
 
 
-            const contentType = request.header('Content-Type');
-
             const responseData = {
                 removed,
             };
 
 
             if (
-                contentType !== DEON_MEDIA_TYPE
+                !request.is(DEON_MEDIA_TYPE)
             ) {
                 if (this.debugAllows('info')) {
                     const requestTime = this.computeRequestTime(request);
 
                     console.info(
-                        `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                        `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                     );
                 }
 
@@ -795,7 +800,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.info(
-                    `[${time.stamp()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (200 OK) Handled POST ${request.path}${requestTime}`,
                 );
             }
 
@@ -807,7 +812,7 @@ class OpjectServer {
                 const requestTime = this.computeRequestTime(request);
 
                 console.error(
-                    `[${time.stamp()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
+                    `[${new Date().toISOString()} :: ${requestID}] (500 Server Error) Could not handle POST ${request.path}${requestTime}`,
                     error,
                 );
             }
@@ -837,7 +842,7 @@ class OpjectServer {
 
         this.serverApplication.use(
             (request, _, next) => {
-                const requestID = uuid.generate();
+                const requestID = randomUUID();
                 (request as ServerRequest).requestID = requestID;
 
                 const requestTime = Date.now();
@@ -848,11 +853,11 @@ class OpjectServer {
         );
 
         this.serverApplication.use(
-            bodyParserJSON(),
+            express.json(),
         );
 
         this.serverApplication.use(
-            bodyParserRaw({
+            express.raw({
                 type: DEON_MEDIA_TYPE,
             }),
         );
@@ -860,9 +865,7 @@ class OpjectServer {
         this.serverApplication.use(
             async (request, _, next) => {
                 try {
-                    const contentType = request.header('Content-Type');
-
-                    if (contentType !== DEON_MEDIA_TYPE) {
+                    if (!request.is(DEON_MEDIA_TYPE) || !Buffer.isBuffer(request.body)) {
                         next();
                         return;
                     }
@@ -881,11 +884,13 @@ class OpjectServer {
 
                     if (this.debugAllows('error')) {
                         console.error(
-                            `[${time.stamp()}${requestIDLog}] Could not handle deon middleware ${request.path}`,
+                            `[${new Date().toISOString()}${requestIDLog}] Could not handle deon middleware ${request.path}`,
                             error,
                         );
                     }
 
+                    // An unparsable body is treated as empty and rejected by the endpoint validation.
+                    request.body = {};
                     next();
                 }
             },
@@ -894,14 +899,13 @@ class OpjectServer {
         this.serverApplication.use(
             async (request, _, next) => {
                 try {
-                    const contentType = request.header('Content-Type');
-
+                    // Express 5 leaves the body undefined when no parser matched the request.
                     if (
-                        contentType !== DEON_MEDIA_TYPE
-                        && contentType !== 'application/json'
+                        !request.body
+                        || typeof request.body !== 'object'
+                        || Buffer.isBuffer(request.body)
                     ) {
-                        next();
-                        return;
+                        request.body = {};
                     }
 
                     const authorization = request.header('Authorization');
@@ -931,7 +935,7 @@ class OpjectServer {
 
                     if (this.debugAllows('error')) {
                         console.error(
-                            `[${time.stamp()}${requestIDLog}] Could not handle token middleware ${request.path}`,
+                            `[${new Date().toISOString()}${requestIDLog}] Could not handle token middleware ${request.path}`,
                             error,
                         );
                     }
@@ -1002,13 +1006,19 @@ class OpjectServer {
             );
         }
 
-        return await fs.readFile(
-            path.join(
-                OBJECTS_PATH,
-                id,
-            ),
-            'utf-8',
-        );
+        const objectPath = resolveStoragePath(OBJECTS_PATH, id);
+        if (!objectPath) {
+            return;
+        }
+
+        try {
+            return await fs.readFile(objectPath, 'utf-8');
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                return;
+            }
+            throw error;
+        }
     }
 
     private async getMetadata(
@@ -1020,12 +1030,14 @@ class OpjectServer {
             );
         }
 
+        const metadataPath = resolveStoragePath(METADATA_PATH, id);
+        if (!metadataPath) {
+            return;
+        }
+
         try {
             const deonData = await fs.readFile(
-                path.join(
-                    METADATA_PATH,
-                    id,
-                ),
+                metadataPath,
                 'utf-8',
             );
             const deon = new Deon();
@@ -1048,11 +1060,14 @@ class OpjectServer {
             );
         }
 
+        const objectPath = resolveStoragePath(OBJECTS_PATH, id);
+        if (!objectPath) {
+            return false;
+        }
+
+        await fs.mkdir(path.dirname(objectPath), { recursive: true });
         await fs.writeFile(
-            path.join(
-                OBJECTS_PATH,
-                id,
-            ),
+            objectPath,
             data,
         );
 
@@ -1063,12 +1078,8 @@ class OpjectServer {
         id: string,
         dependencies: string[] | undefined,
     ) {
-        if (!dependencies) {
-            return true;
-        }
-
         const data = {
-            dependencies,
+            dependencies: dependencies ?? [],
         };
 
         if (this.customRegisterMetadata) {
@@ -1078,14 +1089,17 @@ class OpjectServer {
             );
         }
 
+        const metadataPath = resolveStoragePath(METADATA_PATH, id);
+        if (!metadataPath) {
+            return false;
+        }
+
         const deon = new Deon();
         const deonData = deon.stringify(data);
 
+        await fs.mkdir(path.dirname(metadataPath), { recursive: true });
         await fs.writeFile(
-            path.join(
-                METADATA_PATH,
-                id,
-            ),
+            metadataPath,
             deonData,
         );
 
@@ -1101,12 +1115,22 @@ class OpjectServer {
             );
         }
 
-        await fs.unlink(
-            path.join(
-                OBJECTS_PATH,
-                id,
-            ),
-        );
+        const objectPath = resolveStoragePath(OBJECTS_PATH, id);
+        const metadataPath = resolveStoragePath(METADATA_PATH, id);
+        if (!objectPath || !metadataPath) {
+            return false;
+        }
+
+        try {
+            await fs.unlink(objectPath);
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                return false;
+            }
+            throw error;
+        }
+
+        await fs.rm(metadataPath, { force: true });
 
         return true;
     }

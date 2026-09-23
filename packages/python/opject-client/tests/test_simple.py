@@ -1,51 +1,60 @@
-# Run with
-# python -m tests.test_opject_client
+import pytest
+
+from opject_client import Client
 
 
-#region imports
-import unittest
-
-from opject_client import Client as OpjectClient
-#endregion imports
-
-
-
-#region module
-endpoint = 'http://localhost:7766'
-token = '__TESTS__'
-
-
-class TestOpjectClient(unittest.TestCase):
-    def test_simple(self):
-        opject_id = 'some-opject-python'
-        opject_name = 'SomeOpject'
-
-        opject_client = OpjectClient(
-            endpoint = endpoint,
-            token = token,
-        )
-        opject_client.register(
-            opject_id,
-            # 'class SomeOpject:\n\tdef __init__(self):\n\t\tself.internal = 12\n\tdef read(self):\n\t\treturn self.internal\n',
-            """
-class SomeOpject:
-    def __init__(self):
-        self.internal = 12
-
+SOURCE = '''
+class Example:
     def read(self):
-        return self.internal
-            """,
-        )
-        some_opject = opject_client.require(
-            id = opject_id,
-            name = opject_name,
-        )
-        self.assertEqual(some_opject.read(), 12)
-#endregion module
+        return 12
+'''
 
 
+def test_register_require_remove(transport):
+    client = Client('http://opject.test', 'opject-tests')
+    assert client.register('example', SOURCE) is True
+    assert client.require('example').read() == 12
+    assert client.remove('example') is True
 
-#region runner
-if __name__ == '__main__':
-    unittest.main()
-#endregion runner
+
+def test_exec_keeps_module_globals_and_named_classes(transport):
+    client = Client('http://opject.test', 'opject-tests')
+    assert client.register('globals', 'ANSWER = 12\n' + SOURCE.replace('return 12', 'return ANSWER'))
+    assert client.require('globals', name='Example').read() == 12
+
+
+def test_rejects_invalid_token(transport):
+    client = Client('http://opject.test', 'wrong')
+    assert client.register('forbidden', SOURCE) is False
+    with pytest.raises(Exception, match='no object data'):
+        client.require('forbidden')
+
+
+def test_rejects_failed_integrity_check(transport, monkeypatch):
+    client = Client('http://opject.test', 'opject-tests')
+    assert client.register('tampered', SOURCE)
+
+    def post(url, **kwargs):
+        if url.endswith('/check'):
+            kwargs['json']['sha'] = 'wrong'
+        return transport(url, **kwargs)
+
+    monkeypatch.setattr('requests.post', post)
+    with pytest.raises(Exception, match='did not pass check'):
+        client.require('tampered')
+    assert client.require('tampered', skip_check=True).read() == 12
+
+
+def test_detects_first_class_after_other_code_and_with_bases(transport):
+    client = Client('http://opject.test', 'opject-tests')
+    assert client.register('bases', 'import os\n\nclass Base:\n    pass\n\nclass Example(Base):\n    def read(self):\n        return 12\n')
+    assert type(client.require('bases')).__name__ == 'Base'
+    assert client.register('preceded', 'ANSWER = 12\n' + SOURCE.replace('return 12', 'return ANSWER'))
+    assert client.require('preceded').read() == 12
+
+
+def test_reports_missing_class(transport):
+    client = Client('http://opject.test', 'opject-tests')
+    assert client.register('no-class', 'ANSWER = 12')
+    with pytest.raises(Exception, match='no class found'):
+        client.require('no-class')

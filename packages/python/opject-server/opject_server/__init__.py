@@ -1,3 +1,3 @@
-#region exports
 from .server import Server
-#endregion exports
+
+__all__ = ["Server"]

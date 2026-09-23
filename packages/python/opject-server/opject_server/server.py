@@ -1,5 +1,5 @@
-from multiprocessing import Process
 from flask import Flask
+from werkzeug.serving import make_server
 
 from .endpoints import (
     endpoint_require,
@@ -27,6 +27,9 @@ class Server:
         self.custom_register_metadata = register_metadata
         self.custom_remove_object = remove_object
 
+        self.port = None
+        self.server = None
+
         self.app = Flask(__name__)
         self.__handle_endpoints()
 
@@ -36,19 +39,32 @@ class Server:
         debug: bool = False,
     ):
         self.port = port
-        self.app.run(
-            port=port,
-            debug=debug,
+
+        if debug:
+            # The debug reloader manages its own process and cannot be closed.
+            self.app.run(
+                port=port,
+                debug=debug,
+            )
+            return
+
+        self.server = make_server(
+            '127.0.0.1',
+            port,
+            self.app,
+            threaded=True,
         )
+        self.server.serve_forever()
 
     def close(
         self,
     ):
-        if self.port:
+        """Stop a server started with `start()`; call it from another thread."""
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
+            self.server = None
             print(f"Opject Server closed on port {self.port}")
-            server = Process(target=self.app.run)
-            if server:
-                server.terminate()
         else:
             print("Opject Server has not been started.")
 

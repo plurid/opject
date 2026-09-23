@@ -1,38 +1,35 @@
 // #region imports
     // #region libraries
-    import vm from 'vm';
+    import vm from 'node:vm';
+    import path from 'node:path';
+    import { createHash } from 'node:crypto';
+    import { createRequire } from 'node:module';
 
-    import {
-        execSync,
-    } from 'child_process';
-
-    import {
-        sha as shaFunctions,
-    } from '@plurid/plurid-functions';
+    import spawn from 'cross-spawn';
     // #endregion libraries
 
 
     // #region imports
     import {
         USE_YARN,
-    } from '~data/constants';
+    } from '../../data/constants';
 
     import {
         OpjectClientOptions,
         OpjectClientRequiredOptions,
 
         OpjectRequireOptions,
-    } from '~data/interfaces';
+    } from '../../data/interfaces';
 
-    import Cacher from '~objects/Cacher';
+    import Cacher from '../Cacher';
 
     import {
         resolveCaching,
-    } from '~utilities/caching';
+    } from '../../utilities/caching';
 
     import fetcher, {
         Fetch,
-    } from '~utilities/fetcher';
+    } from '../../utilities/fetcher';
     // #endregion imports
 // #endregion imports
 
@@ -67,7 +64,7 @@ class Client {
     public async require(
         objectID: string,
         options?: OpjectRequireOptions,
-    ) {
+    ): Promise<any> {
         const {
             skipCheck,
             useVM,
@@ -100,7 +97,7 @@ class Client {
 
 
         if (!skipCheckValue) {
-            const sourceSha = await shaFunctions.compute(object);
+            const sourceSha = createHash('sha256').update(object).digest('hex');
             const checkData = await this.fetch(
                 this.checkURL,
                 {
@@ -110,8 +107,23 @@ class Client {
             );
 
             if (!checkData.checked) {
+                if (cachedData) {
+                    // The cached copy is stale: drop it and verify a fresh copy instead.
+                    this.cache.unset(objectID);
+                    return this.require(objectID, options);
+                }
+
                 return;
             }
+        }
+
+        if (useCache && !cachedData) {
+            this.cache.set(
+                objectID,
+                object,
+                this.options.caching,
+                dependencies,
+            );
         }
 
 
@@ -142,7 +154,9 @@ class Client {
         }
 
 
-        const Opject = eval('(' + object + ')');
+        // Resolve dependencies from the consumer in both ESM and CommonJS builds.
+        const require = createRequire(path.join(process.cwd(), 'package.json'));
+        const Opject = new Function('require', 'return (' + object + ')')(require);
         const opject = new Opject();
 
         if (serealState) {
@@ -185,6 +199,7 @@ class Client {
                 objectID,
                 objectData,
                 this.options.caching,
+                objectDependencies,
             );
         }
 
@@ -243,22 +258,22 @@ class Client {
         dependencies: string[] | undefined,
         useYarn: boolean = USE_YARN,
     ) {
-        if (!dependencies) {
+        if (!dependencies?.length) {
             return true;
         }
 
         try {
-            const dependenciesList = dependencies.join(' ');
-            const installCommand = useYarn
-                ? `yarn add ${dependenciesList}`
-                : `npm install ${dependenciesList}`;
-
-            execSync(
-                installCommand,
+            const result = spawn.sync(
+                useYarn ? 'yarn' : 'npm',
+                [useYarn ? 'add' : 'install', '--', ...dependencies],
                 {
                     cwd: process.cwd(),
                 },
             );
+
+            if (result.error || result.status !== 0) {
+                return;
+            }
 
             return true;
         } catch (error) {

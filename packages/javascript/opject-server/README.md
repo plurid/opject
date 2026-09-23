@@ -69,12 +69,9 @@ or
 yarn add @plurid/opject-server
 ```
 
-Install the peer dependencies
+Requires Node 22.18+, Node 24.11+, or Node 26+. Runtime dependencies are installed automatically. Both ESM imports and CommonJS `require()` are supported.
 
-``` bash
-@plurid/deon @plurid/plurid-functions express body-parser crypto
-```
-
+See [the development guide](../../../docs/development.md) for building and testing from this repository.
 
 
 ## Usage

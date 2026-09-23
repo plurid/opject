@@ -1,11 +1,3 @@
-// #region imports
-    // #region libraries
-    import fetchLibrary from 'cross-fetch';
-    // #endregion libraries
-// #endregion imports
-
-
-
 // #region module
 export type Fetch = <B = any, R = any>(
     url: string,
@@ -14,11 +6,11 @@ export type Fetch = <B = any, R = any>(
 
 const fetcher = (
     token: string,
-): Fetch => async <B>(
+): Fetch => async <B, R>(
     url: string,
     body: B,
 ) => {
-    const response = await fetchLibrary(
+    const response = await fetch(
         url,
         {
             method: 'POST',
@@ -32,7 +24,11 @@ const fetcher = (
         },
     );
 
-    return await response.json();
+    if (!response.ok) {
+        throw new Error(`Opject request failed: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json() as R;
 }
 // #endregion module
 

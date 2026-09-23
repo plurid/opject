@@ -2,11 +2,11 @@
     // #region imports
     import {
         OpjectClientCaching,
-    } from '~data/interfaces';
+    } from '../../data/interfaces';
 
     import {
         SECONDS_ONE_DAY,
-    } from '~data/constants';
+    } from '../../data/constants';
     // #endregion imports
 // #endregion imports
 
@@ -16,7 +16,7 @@
 const resolveCaching = (
     value?: OpjectClientCaching,
 ) => {
-    if (!value) {
+    if (value === undefined) {
         return SECONDS_ONE_DAY;
     }
 

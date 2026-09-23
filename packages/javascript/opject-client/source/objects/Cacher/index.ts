@@ -1,15 +1,8 @@
 // #region imports
-    // #region libraries
-    import {
-        time,
-    } from '@plurid/plurid-functions';
-    // #endregion libraries
-
-
     // #region external
     import {
         CachedObject,
-    } from '~data/interfaces';
+    } from '../../data/interfaces';
     // #endregion external
 // #endregion imports
 
@@ -28,7 +21,7 @@ class Cacher {
             return;
         }
 
-        if (time.now() > cached.expiration) {
+        if (Date.now() / 1000 >= cached.expiration) {
             this.unset(objectID);
             return;
         }
@@ -40,14 +33,16 @@ class Cacher {
         objectID: string,
         objectData: string,
         cacheTime: number,
+        dependencies?: string[],
     ) {
         this.objects.set(
             objectID,
             {
                 data: {
                     object: objectData,
+                    dependencies,
                 },
-                expiration: time.now() + cacheTime,
+                expiration: Date.now() / 1000 + cacheTime,
             },
         );
     }

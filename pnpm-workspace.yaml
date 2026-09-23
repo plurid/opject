@@ -1,0 +1,5 @@
+packages:
+  - packages/javascript/*
+
+# Native tooling is supplied as platform-specific optional dependencies.
+allowBuilds: {}
