@@ -6,7 +6,7 @@ members = ["packages/python/*"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9,<10",
+    "pytest>=9.2.0,<10",
     "ruff>=0.15,<0.16",
     "twine>=7,<8",
 ]
